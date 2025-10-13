@@ -1,5 +1,7 @@
+#include <cstring>
 #include <fstream>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 
@@ -20,7 +22,7 @@ AppMode DefineAppMode(const int argc, char* argv[])
 	case 1:
 		return AppMode::Stdin;
 	case 2:
-		if (std::string(argv[1]) == "-h" || std::string(argv[1]) == "--help")
+		if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
 		{
 			return AppMode::Help;
 		}
@@ -40,19 +42,9 @@ std::string ReplaceString(const std::string& source,
 		return source;
 	}
 
-	std::string result;
-	size_t currentPos = 0;
-	size_t foundPos = 0;
-
-	while ((foundPos = source.find(search, currentPos)) != std::string::npos)
-	{
-		result.append(source, currentPos, foundPos - currentPos);
-		result += replace;
-		currentPos = foundPos + search.length();
-	}
-	result.append(source, currentPos);
-
-	return result;
+	return std::views::split(source, search)
+		| std::views::join_with(replace)
+		| std::ranges::to<std::string>();
 }
 
 void ProcessFile(const std::string& inputFileName,
@@ -63,19 +55,19 @@ void ProcessFile(const std::string& inputFileName,
 	std::ifstream input(inputFileName);
 	if (!input.is_open())
 	{
-		throw std::runtime_error("Failed to open input file: " + inputFileName);
+		throw std::invalid_argument("Failed to open input file: " + inputFileName);
 	}
 
 	std::ofstream output(outputFileName);
 	if (!output.is_open())
 	{
-		throw std::runtime_error("Failed to open output file: " + outputFileName);
+		throw std::invalid_argument("Failed to open output file: " + outputFileName);
 	}
 
 	std::string line;
 	while (std::getline(input, line))
 	{
-		output << ReplaceString(line, search, replace) << '\n';
+		output << ReplaceString(line, search, replace) << std::endl;
 	}
 
 	input.close();
@@ -84,7 +76,9 @@ void ProcessFile(const std::string& inputFileName,
 
 void ProcessStdin()
 {
-	std::string search, replace, line;
+	std::string search, replace;
+	std::string line;
+
 	std::getline(std::cin, search);
 	std::getline(std::cin, replace);
 
@@ -93,16 +87,16 @@ void ProcessStdin()
 		throw std::runtime_error("Replacement string is empty");
 	}
 
-	std::cout << ReplaceString(line, search, replace) << '\n';
+	std::cout << ReplaceString(line, search, replace) << std::endl;
 }
 
 void ShowHelpMessage()
 {
 	std::cout
-		<< "Usage:\n"
-		<< "  replace <inputFile> <outputFile> <searchString> <replacementString>\n"
-		<< "  replace               # interactive stdin mode\n"
-		<< "  replace -h | --help   # show this help message\n";
+		<< "Usage:" << std::endl
+		<< "  replace <inputFile> <outputFile> <searchString> <replacementString>" << std::endl
+		<< "  replace               # interactive stdin mode" << std::endl
+		<< "  replace -h | --help   # show this help message" << std::endl;
 }
 
 int main(const int argc, char* argv[])
