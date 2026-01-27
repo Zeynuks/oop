@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PROGRAM="./cmake-build-debug/invert"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROGRAM="$SCRIPT_DIR/../../cmake-build-debug/lab-1/invert/invert"
 
 PASSED=0
 FAILED=0
@@ -17,7 +18,6 @@ create_temp_file() {
     echo "$temp_file"
 }
 
-# normalize whitespace: convert tabs/newlines/multiple spaces -> single space, trim edges
 normalize() {
     sed -E 's/[[:space:]]+/ /g' | sed -E 's/^ //; s/ $//'
 }
@@ -85,18 +85,6 @@ run_test() {
     [ -n "$temp_file" ] && rm -f "$temp_file"
 }
 
-#
-# Tests
-#
-
-# NOTE:
-# - New program prints matrix elements using operator<< (fixed, precision 3) with spacing,
-#   so we normalize whitespace before comparison.
-# - DefineAppMode in the provided code treats argc==5 as "File" mode, but ProcessFile uses argv[1] as filename.
-#   Therefore we call the program with 4 dummy args + filename to trigger "File" mode:
-#     ./invert a b c <file>
-#
-
 run_test "Reading matrix from stdin" \
          "echo -e $'1\t2\t3\n0\t1\t4\n5\t6\t0' | $PROGRAM" \
          $' -24.000   18.000    5.000\n 20.000  -15.000   -4.000\n -5.000    4.000    1.000' \
@@ -105,12 +93,12 @@ run_test "Reading matrix from stdin" \
 run_test "Singular matrix (det=0)" \
          "echo -e $'1\t2\t3\n2\t4\t6\n1\t2\t3' | $PROGRAM" \
          "" \
-         "singular"  # ищем подстроку 'singular' в сообщении об ошибке
+         "singular"
 
 run_test "Not enough numbers in matrix (invalid input)" \
          "echo -e $'1\t2\t3\n4\t5\n6\t7\t8' | $PROGRAM" \
          "" \
-         "Invalid"   # ожидаем любую строку с "Invalid" (operator>> бросает "Invalid input for matrix element")
+         "Invalid"
 
 run_test "Help output" \
          "$PROGRAM -h" \
@@ -134,5 +122,4 @@ run_test "Matrix with negative numbers (possibly singular)" \
 
 echo "Tests passed: $PASSED"
 echo "Tests failed: $FAILED"
-
 exit $FAILED
