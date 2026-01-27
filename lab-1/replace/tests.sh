@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PROGRAM="./cmake-build-debug/replace"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROGRAM="$SCRIPT_DIR/../../cmake-build-debug/lab-1/replace/replace"
 
 PASSED=0
 FAILED=0
