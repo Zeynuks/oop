@@ -5,6 +5,9 @@ ERROR_COLOR="\033[31m"
 PASSED_COLOR="\033[32m"
 DEFAULT_COLOR="\033[0m"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROGRAM="$SCRIPT_DIR/../../cmake-build-debug/lab-1/radix/radix"
+
 run_test() {
     local description="$1"
     local command="$2"
@@ -67,139 +70,139 @@ run_test() {
 }
 
 run_test "Convert hex to decimal (1F -> 31)" \
-    "./cmake-build-debug/radix 16 10 1F" \
+    "$PROGRAM 16 10 1F" \
     "31" \
     "" \
     0
 
 run_test "Convert binary to decimal (1010 -> 10)" \
-    "./cmake-build-debug/radix 2 10 1010" \
+    "$PROGRAM 2 10 1010" \
     "10" \
     "" \
     0
 
 run_test "Convert decimal to hex (255 -> FF)" \
-    "./cmake-build-debug/radix 10 16 255" \
+    "$PROGRAM 10 16 255" \
     "FF" \
     "" \
     0
 
 run_test "Convert negative decimal to binary (-10 -> -1010)" \
-    "./cmake-build-debug/radix 10 2 -10" \
+    "$PROGRAM 10 2 -10" \
     "-1010" \
     "" \
     0
 
 run_test "Convert zero from decimal to binary (0 -> 0)" \
-    "./cmake-build-debug/radix 10 2 0" \
+    "$PROGRAM 10 2 0" \
     "0" \
     "" \
     0
 
 run_test "Convert max int value to hex" \
-    "./cmake-build-debug/radix 10 16 2147483647" \
+    "$PROGRAM 10 16 2147483647" \
     "7FFFFFFF" \
     "" \
     0
 
 run_test "Convert min int value to hex" \
-    "./cmake-build-debug/radix 10 16 -2147483648" \
+    "$PROGRAM 10 16 -2147483648" \
     "-80000000" \
     "" \
     0
 
 run_test "Invalid source radix (greater than 36)" \
-    "./cmake-build-debug/radix 37 10 10" \
+    "$PROGRAM 37 10 10" \
     "" \
     "ERROR: invalid radix" \
     1
 
 run_test "Invalid destination radix (less than 2)" \
-    "./cmake-build-debug/radix 10 1 10" \
+    "$PROGRAM 10 1 10" \
     "" \
     "ERROR: invalid radix" \
     1
 
 run_test "Invalid character for source radix" \
-    "./cmake-build-debug/radix 10 2 1F" \
+    "$PROGRAM 10 2 1F" \
     "" \
     "ERROR: invalid character in input" \
     1
 
 run_test "Too few arguments" \
-    "./cmake-build-debug/radix 10 2" \
+    "$PROGRAM 10 2" \
     "" \
     "Usage: radix.exe <source notation> <destination notation> <value>" \
     1
 
 run_test "Too many arguments" \
-    "./cmake-build-debug/radix 10 2 255 extra" \
+    "$PROGRAM 10 2 255 extra" \
     "" \
     "Usage: radix.exe <source notation> <destination notation> <value>" \
     1
 
 run_test "Convert base 36 to decimal (Z -> 35)" \
-    "./cmake-build-debug/radix 36 10 Z" \
+    "$PROGRAM 36 10 Z" \
     "35" \
     "" \
     0
 
 run_test "Convert decimal to base 36 (35 -> Z)" \
-    "./cmake-build-debug/radix 10 36 35" \
+    "$PROGRAM 10 36 35" \
     "Z" \
     "" \
     0
 
 run_test "Convert octal to decimal (17 -> 15)" \
-    "./cmake-build-debug/radix 8 10 17" \
+    "$PROGRAM 8 10 17" \
     "15" \
     "" \
     0
 
 run_test "Convert base 11 to decimal (A -> 10)" \
-    "./cmake-build-debug/radix 11 10 A" \
+    "$PROGRAM 11 10 A" \
     "10" \
     "" \
     0
 
 run_test "Convert lowercase hex to decimal (1f -> 31)" \
-    "./cmake-build-debug/radix 16 10 1f" \
+    "$PROGRAM 16 10 1f" \
     "31" \
     "" \
     0
 
 run_test "Zero value (base 10 to binary)" \
-    "./cmake-build-debug/radix 10 2 0" \
+    "$PROGRAM 10 2 0" \
     "0" \
     "" \
     0
 
 run_test "Convert negative hex to decimal (-FF -> -255)" \
-    "./cmake-build-debug/radix 16 10 -FF" \
+    "$PROGRAM 16 10 -FF" \
     "-255" \
     "" \
     0
 
 run_test "Overflow when converting to integer" \
-    "./cmake-build-debug/radix 10 2 9999999999999999999999999999" \
+    "$PROGRAM 10 2 9999999999999999999999999999" \
     "" \
     "ERROR: value out of range for int" \
     1
 
 run_test "Empty input value" \
-    "./cmake-build-debug/radix 10 2 \"\"" \
+    "$PROGRAM 10 2 \"\"" \
     "" \
     "ERROR: empty string" \
     1
 
 run_test "Convert large number (overflow)" \
-    "./cmake-build-debug/radix 10 2 2147483648" \
+    "$PROGRAM 10 2 2147483648" \
     "" \
     "ERROR: value out of range for int" \
     1
 
 run_test "Convert large negative number (overflow)" \
-    "./cmake-build-debug/radix 10 2 -2147483649" \
+    "$PROGRAM 10 2 -2147483649" \
     "" \
     "ERROR: value out of range for int" \
     1
