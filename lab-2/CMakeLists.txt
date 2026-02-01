@@ -1,4 +1,4 @@
-#add_subdirectory(vector)
+add_subdirectory(vector)
 #add_subdirectory(html_decode)
 #add_subdirectory(dictionary)
 #add_subdirectory(generator)
