@@ -35,11 +35,6 @@ void ProcessStream(std::istream& in)
 	MatrixLib::Matrix<float> m(3, 3);
 	in >> m;
 
-	if (!in)
-	{
-		throw std::runtime_error("Invalid matrix");
-	}
-
 	std::cout << m.inverse() << std::endl;
 }
 

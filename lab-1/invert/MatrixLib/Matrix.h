@@ -16,8 +16,8 @@ public:
 	[[nodiscard]] size_t getRows() const;
 	[[nodiscard]] size_t getColumns() const;
 
-	const T& operator()(ssize_t row, ssize_t column) const;
-	T& operator()(ssize_t row, ssize_t column);
+	const T& operator()(size_t row, size_t column) const;
+	T& operator()(size_t row, size_t column);
 
 	Matrix& operator+=(const Matrix& rhs);
 	Matrix& operator-=(const Matrix& rhs);

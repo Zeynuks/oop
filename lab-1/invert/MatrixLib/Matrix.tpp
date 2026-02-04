@@ -45,7 +45,7 @@ size_t Matrix<T>::getColumns() const
 }
 
 template <typename T>
-const T& Matrix<T>::operator()(const ssize_t row, const ssize_t column) const
+const T& Matrix<T>::operator()(const size_t row, const size_t column) const
 {
 	if (row < 0 || row >= m_rows || column < 0 || column >= m_columns)
 	{
@@ -56,7 +56,7 @@ const T& Matrix<T>::operator()(const ssize_t row, const ssize_t column) const
 }
 
 template <typename T>
-T& Matrix<T>::operator()(const ssize_t row, const ssize_t column)
+T& Matrix<T>::operator()(const size_t row, const size_t column)
 {
 	return const_cast<T&>(const_cast<const Matrix*>(this)->operator()(row, column));
 }
@@ -150,9 +150,9 @@ template <typename T>
 Matrix<T> Matrix<T>::transpose() const
 {
 	Matrix result(m_columns, m_rows);
-	for (ssize_t i = 0; i < m_rows; ++i)
+	for (size_t i = 0; i < m_rows; ++i)
 	{
-		for (ssize_t j = 0; j < m_columns; ++j)
+		for (size_t j = 0; j < m_columns; ++j)
 		{
 			result(j, i) = (*this)(i, j);
 		}
@@ -174,11 +174,11 @@ T Matrix<T>::determinant() const
 	Matrix temp(*this);
 	T det = 1;
 
-	for (ssize_t k = 0; k < n; ++k)
+	for (size_t k = 0; k < n; ++k)
 	{
-		ssize_t maxRow = k;
+		size_t maxRow = k;
 		T maxVal = std::abs(temp(k, k));
-		for (ssize_t i = k + 1; i < n; ++i)
+		for (size_t i = k + 1; i < n; ++i)
 		{
 			if (std::abs(temp(i, k)) > maxVal)
 			{
@@ -194,7 +194,7 @@ T Matrix<T>::determinant() const
 
 		if (maxRow != k)
 		{
-			for (ssize_t j = 0; j < n; ++j)
+			for (size_t j = 0; j < n; ++j)
 			{
 				std::swap(temp(k, j), temp(maxRow, j));
 			}
@@ -203,10 +203,10 @@ T Matrix<T>::determinant() const
 
 		det *= temp(k, k);
 
-		for (ssize_t i = k + 1; i < n; ++i)
+		for (size_t i = k + 1; i < n; ++i)
 		{
 			T factor = temp(i, k) / temp(k, k);
-			for (ssize_t j = k; j < n; ++j)
+			for (size_t j = k; j < n; ++j)
 			{
 				temp(i, j) -= factor * temp(k, j);
 			}
