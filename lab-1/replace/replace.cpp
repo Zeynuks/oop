@@ -42,9 +42,19 @@ std::string ReplaceString(const std::string& source,
 		return source;
 	}
 
-	return std::views::split(source, search)
-		| std::views::join_with(replace)
-		| std::ranges::to<std::string>();
+	std::string result;
+	size_t currentPos = 0;
+	size_t foundPos = 0;
+
+	while ((foundPos = source.find(search, currentPos)) != std::string::npos)
+	{
+		result.append(source, currentPos, foundPos - currentPos);
+		result += replace;
+		currentPos = foundPos + search.length();
+	}
+	result.append(source, currentPos);
+
+	return result;
 }
 
 void ProcessFile(const std::string& inputFileName,
