@@ -10,8 +10,6 @@ class Matrix
 {
 public:
 	Matrix(size_t rows, size_t columns);
-	// Matrix(ssize_t rows, ssize_t columns, const T* data);
-	Matrix(std::initializer_list<std::initializer_list<T>> list);
 
 	[[nodiscard]] size_t getRows() const;
 	[[nodiscard]] size_t getColumns() const;

@@ -124,7 +124,7 @@ bool Matrix<T>::operator==(const Matrix<U>& rhs) const
 		return false;
 	}
 
-	return std::equal(m_data.begin(), m_data.end(), rhs.m_data.begin());  // TODO ==
+	return std::equal(m_data.begin(), m_data.end(), rhs.m_data.begin());
 }
 
 template <typename T>
@@ -205,7 +205,7 @@ Matrix<T> Matrix<T>::inverse() const
 		throw std::invalid_argument("Matrix must be square");
 	}
 
-	if (this->determinant() <= std::numeric_limits<double>::epsilon()) // TODO: есть способ сравнения чисел с пл. зап.
+	if (this->determinant() <= 0)
 	{
 		throw std::runtime_error("Matrix is singular and cannot be inverted");
 	}
