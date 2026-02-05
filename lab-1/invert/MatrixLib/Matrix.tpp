@@ -28,7 +28,7 @@ size_t Matrix<T>::getColumns() const
 template <typename T>
 const T& Matrix<T>::operator()(const size_t row, const size_t column) const
 {
-	if (row < 0 || row >= m_rows || column < 0 || column >= m_columns)
+	if (row >= m_rows || column >= m_columns)
 	{
 		throw std::out_of_range("Matrix index out of bounds");
 	}
