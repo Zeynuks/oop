@@ -13,25 +13,6 @@ Matrix<T>::Matrix(const size_t rows, const size_t columns)
 {
 }
 
-// TODO: Переработать конструктор
-
-// template <typename T>
-// Matrix<T>::Matrix(const ssize_t rows, const ssize_t columns, const T* data)
-// 	: m_rows{ rows }
-// 	, m_columns{ columns }
-// 	, m_data(data, std::end(data))
-// {
-// }
-
-template <typename T>
-Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> list)
-	: Matrix{ static_cast<ssize_t>(list.size()), static_cast<ssize_t>(list.size() ? std::ranges::max(list | std::views::transform([](auto const& row) { return row.size(); })) : 0) }
-{
-	std::for_each(list.begin(), list.end(), [this, i{ 0 }](auto& row) mutable {
-		std::copy(row.begin(), row.end(), m_data.begin() + i++ * m_columns);
-	});
-}
-
 template <typename T>
 size_t Matrix<T>::getRows() const
 {
