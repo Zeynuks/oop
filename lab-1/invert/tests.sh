@@ -98,7 +98,7 @@ run_test "Singular matrix (det=0)" \
 run_test "Not enough numbers in matrix (invalid input)" \
          "echo -e $'1\t2\t3\n4\t5\n6\t7\t8' | $PROGRAM" \
          "" \
-         "Invalid matrix"
+         "Invalid input for matrix element"
 
 run_test "Help output" \
          "$PROGRAM -h" \
