@@ -4,6 +4,9 @@
 #include <ranges>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+
+using namespace std::literals;
 
 enum class AppMode
 {
@@ -22,7 +25,7 @@ AppMode DefineAppMode(const int argc, char* argv[])
 	case 1:
 		return AppMode::Stdin;
 	case 2:
-		if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
+		if (std::string_view(argv[1]) == "-h"sv || std::string_view(argv[1]) == "--help"sv)
 		{
 			return AppMode::Help;
 		}
