@@ -67,8 +67,7 @@ int StringToInt(const std::string& str, const int radix)
 		throw std::invalid_argument("invalid string (only '-' sign)");
 	}
 
-	long long result = 0;
-	const long long maxAllowedValue = isNegative ? -static_cast<long long>(INT_MIN) : INT_MAX;
+	int result = 0;
 
 	for (; index < str.size(); ++index)
 	{
@@ -78,23 +77,28 @@ int StringToInt(const std::string& str, const int radix)
 			throw std::invalid_argument("invalid character in input");
 		}
 
-		int digit = CharToDigit(currentChar);
-		if (result > (maxAllowedValue - digit) / radix)
+		const int digit = CharToDigit(currentChar);
+		if (!isNegative)
 		{
-			throw std::out_of_range("value out of range for int");
+			if (result > (INT_MAX - digit) / radix)
+			{
+				throw std::out_of_range("value out of range for int");
+			}
+
+			result = result * radix + digit;
 		}
+		else
+		{
+			if (result < (INT_MIN + digit) / radix)
+			{
+				throw std::out_of_range("value out of range for int");
+			}
 
-		result = result * radix + digit;
+			result = result * radix - digit;
+		}
 	}
 
-	const long long finalResult = isNegative ? -result : result;
-
-	if (finalResult < INT_MIN || finalResult > INT_MAX)
-	{
-		throw std::out_of_range("value out of range for int");
-	}
-
-	return static_cast<int>(finalResult);
+	return result;
 }
 
 std::string IntToString(const int number, const int radix)
@@ -110,13 +114,25 @@ std::string IntToString(const int number, const int radix)
 	}
 
 	std::string result;
-
-	long long absNumber = number < 0 ? -(static_cast<long long>(number)) : number;
+	int absNumber = number;
 
 	while (absNumber != 0)
 	{
-		const int digit = static_cast<int>(absNumber % radix);
-		result += static_cast<char>(digit < 10 ? ('0' + digit) : ('A' + (digit - 10)));
+		int digit = absNumber % radix;
+		if (digit < 0)
+		{
+			digit = -digit;
+		}
+
+		if (digit < 10)
+		{
+			result += static_cast<char>('0' + digit);
+		}
+		else
+		{
+			result += static_cast<char>('A' + (digit - 10));
+		}
+
 		absNumber /= radix;
 	}
 
