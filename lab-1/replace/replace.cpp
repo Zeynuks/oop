@@ -1,3 +1,5 @@
+#include "replace_core.h"
+
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -34,30 +36,6 @@ AppMode DefineAppMode(const int argc, char* argv[])
 		break;
 	}
 	return AppMode::Invalid;
-}
-
-std::string ReplaceString(const std::string& source,
-	const std::string& search,
-	const std::string& replace)
-{
-	if (search.empty())
-	{
-		return source;
-	}
-
-	std::string result;
-	size_t currentPos = 0;
-	size_t foundPos = 0;
-
-	while ((foundPos = source.find(search, currentPos)) != std::string::npos)
-	{
-		result.append(source, currentPos, foundPos - currentPos);
-		result += replace;
-		currentPos = foundPos + search.length();
-	}
-	result.append(source, currentPos);
-
-	return result;
 }
 
 void ProcessFile(const std::string& inputFileName,
