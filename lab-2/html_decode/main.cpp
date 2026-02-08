@@ -4,6 +4,8 @@ int main()
 {
 	try
 	{
+		const std::vector<std::string> data = ReadData(std::cin);
+		PrintData(std::cout, data);
 	}
 	catch (const std::exception& errorMessage)
 	{
