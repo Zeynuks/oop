@@ -4,7 +4,7 @@
 
 - [Задание 1: vector - 20 баллов]()
 - [Задание 2: html_decode - 60 баллов]()
-- [Задание 3: dictionary - 90 баллов]()
+- [Задание 3: dictionary - 90 баллов](dictionary/main.cpp)
 - [Задание 4: generator - 100 баллов]()
 - [Задание 5: parser - 80 баллов]()
 - [Задание 6: expand_template - 100 баллов]()
