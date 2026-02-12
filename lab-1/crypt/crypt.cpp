@@ -21,6 +21,7 @@ const std::string DECRYPT = "decrypt";
 constexpr int DECIMAL = 10;
 constexpr int MIN_KEY = 0;
 constexpr int MAX_KEY = 255;
+constexpr int ARGC_COUNT = 5;
 
 enum class Mode
 {
@@ -55,7 +56,7 @@ int TryParseKey(const std::string& key)
 {
 	const int value = std::stoi(key);
 
-	if (value < 0 || value > 255)
+	if (value < MIN_KEY || value > MAX_KEY)
 	{
 		throw std::out_of_range("Ключ должен быть от 0 до 255!");
 	}
@@ -82,7 +83,7 @@ Arguments TryParseArguments(int argc, char* argv[])
 {
 	Arguments arguments;
 
-	if (argc != 5)
+	if (argc != ARGC_COUNT)
 	{
 		throw std::invalid_argument("Программа ожидает: start crypt <input file> <output file> <key> ");
 	}
@@ -131,7 +132,7 @@ void Crypt(std::istream& input, std::ostream& output, const unsigned char key)
 	char byte;
 	while (input.get(byte))
 	{
-		output << static_cast<char>(GetCryptedChar(static_cast<unsigned char>(byte), key));
+		output << (GetCryptedChar((byte), key));
 	}
 }
 
@@ -140,7 +141,7 @@ void Decrypt(std::istream& input, std::ostream& output, const unsigned char key)
 	char byte;
 	while (input.get(byte))
 	{
-		output << static_cast<char>(GetDecryptedChar(static_cast<unsigned char>(byte), key));
+		output << (GetDecryptedChar((byte), key));
 	}
 }
 
