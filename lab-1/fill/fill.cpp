@@ -20,6 +20,7 @@ constexpr char WALL = '#';
 constexpr char EMPTY = ' ';
 constexpr char FILLED = '.';
 constexpr char FILL_FLAG = 'O';
+constexpr char TMP = '*';
 
 struct Point
 {
@@ -71,10 +72,11 @@ struct Grid
 
 	[[nodiscard]] bool IsValid(const Point& p) const
 	{
-		if (p.y <= 0 || p.y >= height - 1 || p.x <= 0 || p.x >= width - 1)
+		if (p.y < 0 || p.y >= height || p.x < 0 || p.x >= width)
 		{
 			return false;
 		}
+
 		if (data[p.y][p.x] == WALL || data[p.y][p.x] == FILLED)
 		{
 			return false;
@@ -82,78 +84,131 @@ struct Grid
 
 		return true;
 	}
+
+	[[nodiscard]] bool IsNearBorder(const Point& p) const
+	{
+		return p.y == 0 || p.y == height - 1 || p.x == 0 || p.x == width - 1;
+	}
+
+	void Read(std::istream& input)
+	{
+		Clear();
+		std::string line;
+
+		while (std::getline(input, line))
+		{
+			if (height >= GRID_SIZE)
+			{
+				break;
+			}
+
+			int len = std::min(static_cast<int>(line.size()), GRID_SIZE);
+
+			for (int x = 0; x < len; ++x)
+			{
+				data[height][x] = line[x];
+			}
+
+			width = std::max(width, len);
+			height++;
+		}
+
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = width; x < GRID_SIZE; ++x)
+			{
+				data[y][x] = EMPTY;
+			}
+		}
+	}
+
+	void Print(std::ostream& out) const
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+			{
+				out << data[y][x];
+			}
+			out << std::endl;
+		}
+	}
 };
 
-Grid ReadGrid(std::istream& input)
+void ProcessNeighbors(const Grid& g, std::queue<Point>& q, const Point& p)
 {
-	Grid grid;
-
-	std::string line;
-	while (std::getline(input, line))
+	for (int i = 0; i < 4; ++i)
 	{
-		if (grid.height >= GRID_SIZE)
+		constexpr int dx[4] = { 0, 0, -1, 1 };
+		constexpr int dy[4] = { -1, 1, 0, 0 };
+		Point neighbor{ p.y + dy[i], p.x + dx[i] };
+		if (const char neighborChar = g.At(neighbor); g.IsValid(neighbor) || neighborChar == FILL_FLAG)
 		{
-			break;
+			q.push(neighbor);
 		}
-
-		int len = std::min(static_cast<int>(line.size()), GRID_SIZE);
-		grid.width = std::max(grid.width, len);
-
-		for (int x = 0; x < len; ++x)
-		{
-			grid[grid.height][x] = line[x];
-		}
-
-		++grid.height;
-	}
-	return grid;
-}
-
-void PrintGrid(const Grid& grid, std::ostream& out)
-{
-	for (int y = 0; y < grid.height; ++y)
-	{
-		for (int x = 0; x < grid.width; ++x)
-		{
-			out << grid[y][x];
-		}
-		out << std::endl;
 	}
 }
 
-void Fill(Grid& g, const Point start)
+void FloodFill(Grid& g, std::queue<Point>& q, bool& touchBorder)
 {
-	if (!g.IsValid(start))
-	{
-		return;
-	}
-
-	std::queue<Point> q;
-	q.push(start);
-
 	while (!q.empty())
 	{
 		Point p = q.front();
 		q.pop();
 
-		if (!g.IsValid(p))
+		char& c = g.At(p);
+
+		if (!(c != TMP && c != WALL))
 		{
 			continue;
 		}
 
-		if (g.At(p) == EMPTY)
+		if (c == EMPTY)
 		{
-			g.At(p) = FILLED;
+			c = TMP;
 		}
 
-		for (int i = 0; i < 4; ++i)
+		if (g.IsNearBorder(p))
 		{
-			constexpr int dy[4] = { -1, 1, 0, 0 };
-			constexpr int dx[4] = { 0, 0, -1, 1 };
-			Point next{ p.y + dy[i], p.x + dx[i] };
-			q.push(next);
+			touchBorder = true;
+		}
+
+		ProcessNeighbors(g, q, p);
+	}
+}
+
+void UpdateTmpCells(Grid& g, const char finalChar)
+{
+	for (int y = 0; y < g.height; ++y)
+	{
+		for (int x = 0; x < g.width; ++x)
+		{
+			if (g[y][x] == TMP)
+			{
+				g[y][x] = finalChar;
+			}
 		}
 	}
+}
+
+bool Fill(Grid& g, const Point start)
+{
+	if (const char startChar = g.At(start); !(startChar == EMPTY || startChar == FILL_FLAG))
+	{
+		return false;
+	}
+
+	std::queue<Point> q;
+	q.push(start);
+
+	bool touchBorder = false;
+
+	FloodFill(g, q, touchBorder);
+
+	const char finalChar = touchBorder ? EMPTY : FILLED;
+	UpdateTmpCells(g, finalChar);
+
+	return !touchBorder;
 }
 
 void RunFill(Grid& grid)
@@ -204,9 +259,10 @@ void ShowHelpMessage()
 
 void Process(std::istream& in, std::ostream& out)
 {
-	Grid grid = ReadGrid(in);
+	Grid grid;
+	grid.Read(in);
 	RunFill(grid);
-	PrintGrid(grid, out);
+	grid.Print(out);
 }
 
 void ProcessFile(const std::string& inName, const std::string& outName)
