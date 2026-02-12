@@ -38,7 +38,7 @@ AppMode DefineAppMode(const int argc, char* argv[])
 	return AppMode::Invalid;
 }
 
-void ProcessFile(const std::string& inputFileName,
+void ReplaceDataFile(const std::string& inputFileName,
 	const std::string& outputFileName,
 	const std::string& search,
 	const std::string& replace)
@@ -65,7 +65,7 @@ void ProcessFile(const std::string& inputFileName,
 	output.close();
 }
 
-void ProcessStdin()
+void ReplaceDataStdin()
 {
 	std::string search, replace;
 	std::string line;
@@ -99,10 +99,10 @@ int main(const int argc, char* argv[])
 		switch (mode)
 		{
 		case AppMode::File:
-			ProcessFile(argv[1], argv[2], argv[3], argv[4]);
+			ReplaceDataFile(argv[1], argv[2], argv[3], argv[4]);
 			break;
 		case AppMode::Stdin:
-			ProcessStdin();
+			ReplaceDataStdin();
 			break;
 		case AppMode::Help:
 			ShowHelpMessage();
