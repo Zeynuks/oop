@@ -168,6 +168,22 @@ run_test "O surrounded by walls / out of bounds" \
          "$expected6" \
          "$input6"
 
+input7=$'###########
+#         #
+#   O     #
+#         #
+#######   #'
+expected7=$'###########
+#         #
+#   O     #
+#         #
+#######   #'
+
+run_test "Unclosed figure (no fill)" \
+         "$PROGRAM <file> /dev/stdout" \
+         "$expected7" \
+         "$input7"
+
 echo "Tests passed: $PASSED"
 echo "Tests failed: $FAILED"
 exit $FAILED

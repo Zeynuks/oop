@@ -64,12 +64,12 @@ struct Grid
 		return data[p.y][p.x];
 	}
 
-	const char& At(const Point& p) const
+	[[nodiscard]] const char& At(const Point& p) const
 	{
 		return data[p.y][p.x];
 	}
 
-	bool IsValid(const Point& p) const
+	[[nodiscard]] bool IsValid(const Point& p) const
 	{
 		if (p.y <= 0 || p.y >= height - 1 || p.x <= 0 || p.x >= width - 1)
 		{
