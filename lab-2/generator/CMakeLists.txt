@@ -8,3 +8,4 @@ add_executable(prime_generator main.cpp)
 target_link_libraries(prime_generator prime_generator_lib)
 
 add_subdirectory(tests)
+add_subdirectory(benchmark)

@@ -52,7 +52,7 @@ int ParseUpperBound(const std::string& value)
 
 void PrintPrimes(const int upperBound)
 {
-	const auto primes = GeneratePrimeNumbersSet(upperBound);
+	const auto primes = GeneratePrimeNumbers_Base(upperBound);
 
 	for (const int p : primes)
 	{
