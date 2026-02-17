@@ -1,7 +1,7 @@
-#include "../ExpandTemplate.h"
+#include "../ExpandTemplate.hpp"
 #include <gtest/gtest.h>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
 TEST(ExpandTemplateTest, ThrowsOnEmptyTemplate) {
 	const std::unordered_map<std::string, std::string> templates{
