@@ -3,50 +3,65 @@
 #include "Emit.hpp"
 #include <string>
 
+/**
+ * @brief Класс Token представляет элемент токенизации текста.
+ *
+ * Может быть фрагментом текста (Fragment) или совпадением ключевого слова (Match).
+ * Используется вместе с Trie для разбиения текста на токены.
+ *
+ * @tparam CharType Тип символа (например, char или wchar_t)
+ */
 template <typename CharType>
 class Token
 {
 public:
+	/**
+	 * @brief Тип токена
+	 */
 	enum Type
 	{
-		Fragment,
-		Match
+		Fragment, /**< Обычный фрагмент текста */
+		Match /**< Совпадение ключевого слова */
 	};
 
-	using StringType = std::basic_string<CharType>;
-	using EmitType = Emit<CharType>;
+	using StringType = std::basic_string<CharType>; /**< Тип строки символов */
+	using EmitType = Emit<CharType>; /**< Тип Emit для совпадений */
 
-	explicit Token(StringType fragment)
-		: m_type(Fragment)
-		, m_fragment(fragment)
-		, m_emit()
-	{
-	}
+	/**
+	 * @brief Конструктор для фрагмента текста.
+	 * @param fragment Текст фрагмента
+	 */
+	explicit Token(StringType fragment);
 
-	Token(StringType fragment, const EmitType& emit)
-		: m_type(Match)
-		, m_fragment(fragment)
-		, m_emit(emit)
-	{
-	}
+	/**
+	 * @brief Конструктор для совпадения ключевого слова.
+	 * @param fragment Текст совпадения
+	 * @param emit Объект Emit с позицией и ключевым словом
+	 */
+	Token(StringType fragment, const EmitType& emit);
 
-	[[nodiscard]] bool IsMatch() const
-	{
-		return m_type == Match;
-	}
+	/**
+	 * @brief Проверка, является ли токен совпадением.
+	 * @return true, если токен Match
+	 */
+	[[nodiscard]] bool IsMatch() const;
 
-	StringType GetFragment() const
-	{
-		return m_fragment;
-	}
+	/**
+	 * @brief Получить текст токена.
+	 * @return Фрагмент текста
+	 */
+	StringType GetFragment() const;
 
-	EmitType GetEmit() const
-	{
-		return m_emit;
-	}
+	/**
+	 * @brief Получить объект Emit.
+	 * @return Emit с позицией и ключевым словом
+	 */
+	EmitType GetEmit() const;
 
 private:
-	Type m_type;
-	StringType m_fragment;
-	EmitType m_emit;
+	Type m_type; /**< Тип токена */
+	StringType m_fragment; /**< Текст фрагмента */
+	EmitType m_emit; /**< Объект Emit */
 };
+
+#include "Token.tpp"

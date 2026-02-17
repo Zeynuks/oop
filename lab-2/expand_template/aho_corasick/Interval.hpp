@@ -1,55 +1,61 @@
 #pragma once
 
+#include <cstddef>
+
+/**
+ * @brief Класс Interval представляет числовой интервал [start, end].
+ *
+ * Используется для определения границ совпадений в тексте и проверки перекрытий.
+ */
 class Interval
 {
 public:
-	Interval(const size_t start, const size_t end)
-		: m_start(start)
-		, m_end(end)
-	{
-	}
+	/**
+	 * @brief Конструктор с указанием начала и конца интервала.
+	 * @param start Начало интервала
+	 * @param end Конец интервала
+	 */
+	Interval(size_t start, size_t end);
 
-	[[nodiscard]] size_t GetStart() const
-	{
-		return m_start;
-	}
+	/**
+	 * @brief Получить начало интервала.
+	 * @return Начальная позиция
+	 */
+	[[nodiscard]] size_t GetStart() const;
 
-	[[nodiscard]] size_t GetEnd() const
-	{
-		return m_end;
-	}
+	/**
+	 * @brief Получить конец интервала.
+	 * @return Конечная позиция
+	 */
+	[[nodiscard]] size_t GetEnd() const;
 
-	[[nodiscard]] size_t Size() const
-	{
-		return m_end - m_start + 1;
-	}
+	/**
+	 * @brief Получить длину интервала.
+	 * @return Размер интервала
+	 */
+	[[nodiscard]] size_t Size() const;
 
-	[[nodiscard]] bool OverlapsWith(const Interval& other) const
-	{
-		return m_start <= other.m_end && m_end >= other.m_start;
-	}
+	/**
+	 * @brief Проверить пересечение с другим интервалом.
+	 * @param other Другой интервал
+	 * @return True, если есть пересечение
+	 */
+	[[nodiscard]] bool OverlapsWith(const Interval& other) const;
 
-	[[nodiscard]] bool OverlapsWith(const size_t point) const
-	{
-		return m_start <= point && point <= m_end;
-	}
+	/**
+	 * @brief Проверить, включает ли интервал точку.
+	 * @param point Точка
+	 * @return True, если точка внутри интервала
+	 */
+	[[nodiscard]] bool OverlapsWith(size_t point) const;
 
-	bool operator<(const Interval& other) const
-	{
-		return GetStart() < other.GetStart();
-	}
-
-	bool operator!=(const Interval& other) const
-	{
-		return GetStart() != other.GetStart() || GetEnd() != other.GetEnd();
-	}
-
-	bool operator==(const Interval& other) const
-	{
-		return GetStart() == other.GetStart() && GetEnd() == other.GetEnd();
-	}
+	bool operator<(const Interval& other) const;
+	bool operator!=(const Interval& other) const;
+	bool operator==(const Interval& other) const;
 
 private:
-	size_t m_start;
-	size_t m_end;
+	size_t m_start; /**< Начало интервала */
+	size_t m_end; /**< Конец интервала */
 };
+
+#include "Interval.tpp"

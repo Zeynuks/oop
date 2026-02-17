@@ -6,116 +6,123 @@
 #include <string>
 #include <vector>
 
+/**
+ * @brief Класс State представляет состояние автомата Ахо-Корасика в дереве Trie.
+ *
+ * Каждое состояние хранит переходы и связанные с ними ключевые слова, а также информацию о неудачах.
+ *
+ * @tparam CharType Тип символа (например, char или wchar_t)
+ */
 template <typename CharType>
 class State
 {
 public:
-	using Ptr = State*;
-	using UniquePtr = std::unique_ptr<State>;
-	using StringType = std::basic_string<CharType>;
-	using KeyIndex = std::pair<StringType, unsigned>;
-	using EmitCollection = std::set<KeyIndex>;
-	using StateCollection = std::vector<Ptr>;
-	using TransitionCollection = std::vector<CharType>;
+	using Ptr = State*; /**< Указатель на состояние */
+	using UniquePtr = std::unique_ptr<State>; /**< Уникальный указатель на состояние */
+	using StringType = std::basic_string<CharType>; /**< Тип строки символов */
+	using KeyIndex = std::pair<StringType, unsigned>; /**< Пара (ключевое слово, индекс) */
+	using EmitCollection = std::set<KeyIndex>; /**< Коллекция совпадений */
+	using StateCollection = std::vector<Ptr>; /**< Коллекция состояний */
+	using TransitionCollection = std::vector<CharType>; /**< Коллекция переходов */
 
-	State()
-		: State(0)
-	{
-	}
+	/**
+	 * @brief Конструктор по умолчанию.
+	 * @param depth Глубина состояния в дереве.
+	 */
+	State();
 
-	explicit State(const size_t depth)
-		: m_depth(depth)
-		, m_root(depth == 0 ? this : nullptr)
-		, m_failure(nullptr)
-		, m_emits()
-	{
-	}
+	/**
+	 * @brief Конструктор с заданной глубиной.
+	 * @param depth Глубина состояния в дереве.
+	 */
+	explicit State(size_t depth);
 
-	[[nodiscard]] size_t GetDepth() const
-	{
-		return m_depth;
-	}
+	/**
+	 * @brief Получить глубину состояния.
+	 * @return Глубина состояния.
+	 */
+	[[nodiscard]] size_t GetDepth() const;
 
-	Ptr NextState(CharType c) const
-	{
-		return NextState(c, false);
-	}
+	/**
+	 * @brief Получить следующее состояние по символу.
+	 * @param c Символ.
+	 * @return Указатель на следующее состояние.
+	 */
+	Ptr NextState(CharType c) const;
 
-	Ptr NextStateIgnoreRoot(CharType c) const
-	{
-		return NextState(c, true);
-	}
+	/**
+	 * @brief Получить следующее состояние по символу, игнорируя корень.
+	 *
+	 * Используется внутри AddState для корректного добавления новых состояний.
+	 * @param c Символ
+	 * @return Указатель на следующее состояние или nullptr
+	 */
+	Ptr NextStateIgnoreRoot(CharType c) const;
 
-	Ptr AddState(CharType c)
-	{
-		auto next = NextStateIgnoreRoot(c);
-		if (!next)
-		{
-			next = new State(m_depth + 1);
-			m_success[c].reset(next);
-		}
+	/**
+	 * @brief Добавить переход к следующему состоянию.
+	 * @param c Символ.
+	 * @return Указатель на следующее состояние.
+	 */
+	Ptr AddState(CharType c);
 
-		return next;
-	}
+	/**
+	 * @brief Добавить ключевое слово в состояние.
+	 * @param keyword Ключевое слово.
+	 * @param index Индекс ключевого слова.
+	 */
+	void AddEmit(const StringType& keyword, unsigned index);
 
-	void AddEmit(const StringType& keyword, unsigned index)
-	{
-		m_emits.insert(std::make_pair(keyword, index));
-	}
+	/**
+	 * @brief Добавить несколько ключевых слов.
+	 * @param emits Коллекция ключевых слов.
+	 */
+	void AddEmit(const EmitCollection& emits);
 
-	void AddEmit(const EmitCollection& emits)
-	{
-		for (const auto& emit : emits)
-		{
-			m_emits.insert(emit);
-		}
-	}
+	/**
+	 * @brief Получить коллекцию ключевых слов.
+	 * @return Коллекция ключевых слов.
+	 */
+	EmitCollection GetEmits() const;
 
-	EmitCollection GetEmits() const { return m_emits; }
-	Ptr Failure() const { return m_failure; }
-	void SetFailure(Ptr failState) { m_failure = failState; }
+	/**
+	 * @brief Получить состояние неудачи.
+	 * @return Указатель на состояние неудачи.
+	 */
+	Ptr Failure() const;
 
-	StateCollection GetStates() const
-	{
-		StateCollection result;
-		for (const auto& pair : m_success)
-		{
-			result.push_back(pair.second.get());
-		}
+	/**
+	 * @brief Установить состояние неудачи.
+	 * @param failState Указатель на состояние неудачи.
+	 */
+	void SetFailure(Ptr failState);
 
-		return result;
-	}
+	/**
+	 * @brief Получить все состояния-переходы.
+	 * @return Коллекция состояний.
+	 */
+	StateCollection GetStates() const;
 
-	TransitionCollection GetTransitions() const
-	{
-		TransitionCollection result;
-		for (const auto& pair : m_success)
-		{
-			result.push_back(pair.first);
-		}
-
-		return result;
-	}
+	/**
+	 * @brief Получить все переходы.
+	 * @return Коллекция символов переходов.
+	 */
+	TransitionCollection GetTransitions() const;
 
 private:
-	size_t m_depth;
-	Ptr m_root;
-	std::map<CharType, UniquePtr> m_success;
-	Ptr m_failure;
-	EmitCollection m_emits;
+	size_t m_depth; /**< Глубина состояния в дереве */
+	Ptr m_root; /**< Указатель на корень (для состояния глубины 0) */
+	std::map<CharType, UniquePtr> m_success; /**< Переходы по символам */
+	Ptr m_failure; /**< Указатель на состояние неудачи */
+	EmitCollection m_emits; /**< Коллекция совпадений */
 
-	Ptr NextState(CharType c, const bool ignoreRoot) const
-	{
-		auto it = m_success.find(c);
-		if (it != m_success.end())
-		{
-			return it->second.get();
-		}
-		if (!ignoreRoot && m_root)
-		{
-			return m_root;
-		}
-
-		return nullptr;
-	}
+	/**
+	 * @brief Получить следующее состояние по символу с опцией игнорирования корня.
+	 * @param c Символ.
+	 * @param ignoreRoot Игнорировать ли корень.
+	 * @return Указатель на следующее состояние.
+	 */
+	Ptr NextState(CharType c, bool ignoreRoot) const;
 };
+
+#include "State.tpp"
