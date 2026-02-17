@@ -1,27 +1,39 @@
 #pragma once
 #include "TemplateStorage.h"
-#include <algorithm>
+#include "aho_corasick/Trie.hpp"
+
+#include <ranges>
 #include <string>
-#include <vector>
 
 inline std::string ExpandTemplate(const std::string& tpl, const std::unordered_map<std::string, std::string>& templates)
 {
-	std::string result = tpl;
+	Trie<char> trie;
+	trie.RemoveOverlaps();
 
-	std::vector<std::pair<std::string, std::string>> entries(templates.begin(), templates.end());
-
-	std::ranges::sort(entries, [](const auto& a, const auto& b) {
-		return a.first.size() > b.first.size();
-	});
-
-	for (const auto& [key, value] : entries)
+	for (const auto& key : templates | std::views::keys)
 	{
-		size_t pos = 0;
-		while ((pos = result.find(key, pos)) != std::string::npos)
+		trie.Insert(key);
+	}
+
+	const auto emits = trie.ParseText(tpl);
+
+	std::string result;
+	size_t lastPos = 0;
+
+	for (const auto& emit : emits)
+	{
+		if (emit.GetStart() > lastPos)
 		{
-			result.replace(pos, key.size(), value);
-			pos += value.size();
+			result.append(tpl, lastPos, emit.GetStart() - lastPos);
 		}
+
+		result.append(templates.at(emit.GetKeyword()));
+		lastPos = emit.GetEnd() + 1;
+	}
+
+	if (lastPos < tpl.size())
+	{
+		result.append(tpl, lastPos, tpl.size() - lastPos);
 	}
 
 	return result;
