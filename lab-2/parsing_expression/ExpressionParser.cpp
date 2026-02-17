@@ -1,69 +1,40 @@
 #include "ExpressionParser.h"
+#include "Stack.hpp"
 #include <cctype>
-#include <charconv>
-#include <format>
+#include <optional>
 #include <stdexcept>
 
-ExpressionParser::ExpressionParser(const std::string& input)
-	: line(input)
+void SkipSpaces(const std::string& line, std::size_t& i)
 {
-}
-
-void ExpressionParser::SkipSpaces()
-{
-	while (!End() && std::isspace(line[pos]))
+	while (i < line.size() && std::isspace(line[i]))
 	{
-		++pos;
+		++i;
 	}
 }
 
-char ExpressionParser::CurrentChar() const
+long long ParseNumber(const std::string& line, std::size_t& i)
 {
-	if (End())
+	const std::size_t start = i;
+
+	if (line[i] == OP_SUB)
 	{
-		return 0;
-	}
-	return line[pos];
-}
-
-bool ExpressionParser::End() const
-{
-	return pos >= line.size();
-}
-
-long long ExpressionParser::ParseNumber()
-{
-	const std::size_t start = pos;
-	bool negative = false;
-
-	if (line[pos] == OP_SUB)
-	{
-		negative = true;
-		++pos;
+		++i;
 	}
 
-	if (End() || !std::isdigit(line[pos]))
+	if (i >= line.size() || !std::isdigit(line[i]))
 	{
 		throw std::runtime_error("Invalid number");
 	}
 
-	std::size_t end = pos;
-	while (end < line.size() && std::isdigit(line[end]))
+	while (i < line.size() && std::isdigit(line[i]))
 	{
-		++end;
+		++i;
 	}
 
-	long long value;
-	if (auto [ptr, ec] = std::from_chars(line.data() + start, line.data() + end, value); ec != std::errc())
-	{
-		throw std::runtime_error("Number parse error at position " + std::to_string(start));
-	}
-
-	pos = end;
-	return negative ? -value : value;
+	return std::stoll(line.substr(start, i - start));
 }
 
-void ExpressionParser::AddArgument(Expression& expression, const long long value)
+void AddArgument(Expression& expression, const long long value)
 {
 	if (!expression.has_argument)
 	{
@@ -86,17 +57,17 @@ void ExpressionParser::AddArgument(Expression& expression, const long long value
 	}
 }
 
-void ExpressionParser::HandleOpenBracket()
+void HandleOpenBracket(Stack<Expression>& stack, std::size_t& i)
 {
 	stack.Push(Expression{});
-	++pos;
+	++i;
 }
 
-void ExpressionParser::HandleOperation(const char op)
+void HandleOperation(Stack<Expression>& stack, const char op, std::size_t& i)
 {
 	if (stack.Empty() || stack.Top().operation != 0)
 	{
-		throw std::runtime_error(std::format("Invalid operation '{}' at position {}", op, pos));
+		throw std::runtime_error("Invalid operation position");
 	}
 
 	stack.Top().operation = op;
@@ -105,25 +76,25 @@ void ExpressionParser::HandleOperation(const char op)
 		stack.Top().value = 1;
 	}
 
-	++pos;
+	++i;
 }
 
-void ExpressionParser::HandleNumber()
+void HandleNumber(Stack<Expression>& stack, const std::string& line, std::size_t& i)
 {
 	if (stack.Empty())
 	{
-		throw std::runtime_error(std::format("Number outside expression at position {}", pos));
+		throw std::runtime_error("Number outside expression");
 	}
 
-	const long long value = ParseNumber();
-	AddArgument(stack.Top(), value);
+	const long long number = ParseNumber(line, i);
+	AddArgument(stack.Top(), number);
 }
 
-std::optional<long long> ExpressionParser::HandleCloseBracket()
+std::optional<long long> HandleCloseBracket(Stack<Expression>& stack, std::size_t& i, const std::string& line)
 {
 	if (stack.Empty())
 	{
-		throw std::runtime_error(std::format("Unexpected ')' at position {}", pos));
+		throw std::runtime_error("Unexpected ')'");
 	}
 
 	Expression finished = stack.Top();
@@ -131,68 +102,76 @@ std::optional<long long> ExpressionParser::HandleCloseBracket()
 
 	if (!finished.has_argument)
 	{
-		throw std::runtime_error(std::format("Expression without arguments at position {}", pos));
+		throw std::runtime_error("Expression without arguments");
 	}
-
-	++pos;
-	SkipSpaces();
 
 	if (stack.Empty())
 	{
-		if (!End())
+		++i;
+		SkipSpaces(line, i);
+		if (i != line.size())
 		{
-			throw std::runtime_error(std::format("Extra characters after expression at position {}", pos));
+			throw std::runtime_error("Extra characters after expression");
 		}
+
 		return finished.value;
 	}
 
 	AddArgument(stack.Top(), finished.value);
+	++i;
+
 	return std::nullopt;
 }
 
-std::optional<long long> ExpressionParser::HandleToken()
+std::optional<long long> HandleToken(Stack<Expression>& stack, const std::string& line, std::size_t& i)
 {
-	SkipSpaces();
-	if (End())
+	SkipSpaces(line, i);
+
+	if (i >= line.size())
 	{
 		return std::nullopt;
 	}
 
-	char ch = CurrentChar();
+	const char ch = line[i];
 
 	if (std::isdigit(ch) || ch == OP_SUB)
 	{
-		HandleNumber();
+		HandleNumber(stack, line, i);
 		return std::nullopt;
 	}
 
 	switch (ch)
 	{
 	case BRACKET_OPEN:
-		HandleOpenBracket();
+	{
+		HandleOpenBracket(stack, i);
 		return std::nullopt;
+	}
 	case OP_ADD:
 	case OP_MUL:
-		HandleOperation(ch);
+	{
+		HandleOperation(stack, ch, i);
 		return std::nullopt;
+	}
 	case BRACKET_CLOSE:
-		return HandleCloseBracket();
+	{
+		return HandleCloseBracket(stack, i, line);
+	}
 	default:
-		throw std::runtime_error(std::format("Invalid character '{}' at position {}", ch, pos));
+	{
+		throw std::runtime_error("Invalid character");
+	}
 	}
 }
 
-long long ExpressionParser::Parse()
+long long ParseExpression(const std::string& line)
 {
-	SkipSpaces();
-	if (End())
-	{
-		throw std::runtime_error("Empty expression");
-	}
+	Stack<Expression> stack;
+	std::size_t i = 0;
 
-	while (!End())
+	while (i < line.size())
 	{
-		if (auto result = HandleToken(); result.has_value())
+		if (auto result = HandleToken(stack, line, i); result.has_value())
 		{
 			return result.value();
 		}
