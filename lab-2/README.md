@@ -8,4 +8,4 @@
 - [Задание 4: generator - 100 баллов]()
 - [Задание 5: parser - 80 баллов]()
 - [Задание 6: expand_template - 100 баллов]()
-- [Задание 7: parsing_expression - 100 баллов]()
+- [Задание 7: parsing_expression - 100 баллов](parsing_expression/main.cpp)
