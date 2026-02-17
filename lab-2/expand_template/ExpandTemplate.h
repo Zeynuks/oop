@@ -7,6 +7,11 @@
 
 inline std::string ExpandTemplate(const std::string& tpl, const std::unordered_map<std::string, std::string>& templates)
 {
+	if (tpl.empty())
+	{
+		throw std::runtime_error("No template specified");
+	}
+
 	Trie<char> trie;
 	trie.RemoveOverlaps();
 

@@ -57,11 +57,6 @@ void ExpandTemplateStream(std::istream& input, std::ostream& output, const Templ
 {
 	const std::string tpl{ std::istreambuf_iterator(input), std::istreambuf_iterator<char>() };
 
-	if (tpl.empty())
-	{
-		throw std::runtime_error("No template specified");
-	}
-
 	const auto& templates = storage.GetAllTemplates();
 
 	output << ExpandTemplate(tpl, templates);
