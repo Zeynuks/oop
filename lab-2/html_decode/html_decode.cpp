@@ -18,12 +18,12 @@ std::string HtmlDecode(const std::string& text)
 	size_t lastPos = 0;
 	for (size_t i = 0; i < text.size(); ++i)
 	{
-		if (text[i] != '&')
+		if (text[i] != '&') //TODO в конст
 		{
 			continue;
 		}
 
-		const size_t semicolonPos = text.find(';', i);
+		const size_t semicolonPos = text.find(';', i); //TODO в конст
 		if (semicolonPos == std::string::npos)
 		{
 			break;
