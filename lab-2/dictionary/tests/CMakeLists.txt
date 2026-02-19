@@ -1,10 +1,10 @@
-add_executable(tests
+add_executable(dictionary_tests
         LoaderTest.cpp
         DictionaryTest.cpp
         InMemoryStorageTest.cpp
 )
 
-target_link_libraries(tests
+target_link_libraries(dictionary_tests
         GTest::gtest
         GTest::gtest_main
         GTest::gmock
@@ -12,4 +12,4 @@ target_link_libraries(tests
         storage_lib
 )
 
-add_test(NAME DictionaryTests COMMAND tests)
+add_test(NAME DictionaryTests COMMAND dictionary_tests)
