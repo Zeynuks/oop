@@ -6,7 +6,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(extern/googletest)
 
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
-add_subdirectory(benchmark)
-
 add_subdirectory(lab-2)
