@@ -9,7 +9,7 @@ TEST(ExpandTemplateTest, ThrowsOnEmptyTemplate)
 		{ "KEY", "value" }
 	};
 
-	EXPECT_THROW(ExpandTemplate("", templates), std::runtime_error);
+	EXPECT_THROW(ExpandTemplate("", templates), std::invalid_argument);
 }
 
 TEST(ExpandTemplateTest, ReturnsOriginalStringIfNoKeysMatch)

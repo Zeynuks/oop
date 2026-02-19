@@ -9,7 +9,7 @@ inline std::string ExpandTemplate(const std::string& tpl, const std::unordered_m
 {
 	if (tpl.empty())
 	{
-		throw std::runtime_error("No template specified");
+		throw std::invalid_argument("No template specified");
 	}
 
 	Trie<char> trie;

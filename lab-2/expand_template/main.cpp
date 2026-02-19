@@ -90,7 +90,7 @@ inline void ShowHelpMessage()
 		<< "  expand_template -h | --help  # show this help message\n";
 }
 
-int main(const int argc, char* argv[])
+int main(const int argc, char* argv[]) //TODO Вынести
 {
 	const AppMode mode = DefineAppMode(argc, argv);
 
