@@ -1,4 +1,5 @@
 #pragma once
+#include "Emit.hpp"
 
 template <typename CharType>
 Emit<CharType>::Emit()

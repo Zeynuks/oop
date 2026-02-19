@@ -10,5 +10,6 @@ add_library(template_storage_lib
 add_executable(ExpandTemplate main.cpp)
 target_link_libraries(ExpandTemplate template_storage_lib)
 
-add_subdirectory(tests)
 add_subdirectory(aho_corasick)
+add_subdirectory(benchmarks)
+add_subdirectory(tests)
