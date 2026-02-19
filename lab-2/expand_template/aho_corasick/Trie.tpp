@@ -47,32 +47,6 @@ void Trie<CharType>::Insert(const StringType& keyword)
 }
 
 template <typename CharType>
-Trie<CharType>::TokenCollection Trie<CharType>::Tokenize(const StringType& text)
-{
-	TokenCollection tokens;
-	auto collectedEmits = ParseText(text);
-	size_t lastPos = -1;
-
-	for (const auto& emit : collectedEmits)
-	{
-		if (emit.GetStart() - lastPos > 1)
-		{
-			tokens.push_back(CreateFragment(emit, text, lastPos));
-		}
-
-		tokens.push_back(CreateMatch(emit, text));
-		lastPos = emit.GetEnd();
-	}
-
-	if (text.size() - lastPos > 1)
-	{
-		tokens.push_back(CreateFragment(EmitType(), text, lastPos));
-	}
-
-	return tokens;
-}
-
-template <typename CharType>
 Trie<CharType>::EmitCollection Trie<CharType>::ParseText(const StringType& text)
 {
 	CheckFailureStates();
@@ -163,28 +137,6 @@ void Trie<CharType>::ConstructFailureStates()
 			targetState->AddEmit(newFail->GetEmits());
 		}
 	}
-}
-
-template <typename CharType>
-Trie<CharType>::TokenType Trie<CharType>::CreateFragment(const EmitType& emit, const StringType& text, const size_t lastPos) const
-{
-	size_t start = lastPos + 1;
-	const size_t end = emit.IsEmpty() ? text.size() : emit.GetStart();
-	auto len = end - start;
-	StringType str = text.substr(start, len);
-
-	return TokenType(str);
-}
-
-template <typename CharType>
-Trie<CharType>::TokenType Trie<CharType>::CreateMatch(const EmitType& emit, const StringType& text) const
-{
-	size_t start = emit.GetStart();
-	const size_t end = emit.GetEnd() + 1;
-	auto len = end - start;
-	StringType str = text.substr(start, len);
-
-	return TokenType(str, emit);
 }
 
 template <typename CharType>

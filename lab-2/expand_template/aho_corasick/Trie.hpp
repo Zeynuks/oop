@@ -2,7 +2,6 @@
 
 #include "Emit.hpp"
 #include "State.hpp"
-#include "Token.hpp"
 
 #include <string>
 #include <vector>
@@ -17,8 +16,6 @@ class Trie
 {
 public:
 	using StringType = std::basic_string<CharType>; /**< Тип строки для ключевых слов и текста. */
-	using TokenType = Token<CharType>; /**< Тип токена. */
-	using TokenCollection = std::vector<TokenType>; /**< Коллекция токенов. */
 	using EmitType = Emit<CharType>; /**< Тип совпадения ключевого слова. */
 	using EmitCollection = std::vector<EmitType>; /**< Коллекция совпадений. */
 	using StateType = State<CharType>; /**< Тип состояния автомата. */
@@ -86,13 +83,6 @@ public:
 	void Insert(const StringType& keyword);
 
 	/**
-	 * @brief Токенизирует текст, разделяя на совпадения и фрагменты.
-	 * @param text Входной текст.
-	 * @return Коллекция токенов.
-	 */
-	TokenCollection Tokenize(const StringType& text);
-
-	/**
 	 * @brief Выполняет поиск всех совпадений ключевых слов в тексте.
 	 * @param text Входной текст.
 	 * @return Коллекция совпадений (Emit).
@@ -118,23 +108,6 @@ private:
 
 	/** @brief Строит состояния неудачи для автомата Ахо-Корасика. */
 	void ConstructFailureStates();
-
-	/**
-	 * @brief Создает токен-фрагмент между совпадениями.
-	 * @param emit Текущее совпадение.
-	 * @param text Текст.
-	 * @param lastPos Позиция конца предыдущего совпадения.
-	 * @return Токен-фрагмент.
-	 */
-	TokenType CreateFragment(const EmitType& emit, const StringType& text, size_t lastPos) const;
-
-	/**
-	 * @brief Создает токен для совпадения.
-	 * @param emit Совпадение.
-	 * @param text Текст.
-	 * @return Токен совпадения.
-	 */
-	TokenType CreateMatch(const EmitType& emit, const StringType& text) const;
 
 	/**
 	 * @brief Сохраняет все совпадения из состояния.
