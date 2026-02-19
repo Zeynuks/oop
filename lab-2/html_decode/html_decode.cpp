@@ -2,6 +2,9 @@
 
 #include <unordered_map>
 
+constexpr char ENTITY_START = '&';
+constexpr char ENTITY_END = ';';
+
 const std::unordered_map<std::string_view, char> HTML_DECODE_ENTITIES = {
 	{ "&quot;", '"' },
 	{ "&apos;", '\'' },
@@ -18,12 +21,12 @@ std::string HtmlDecode(const std::string& text)
 	size_t lastPos = 0;
 	for (size_t i = 0; i < text.size(); ++i)
 	{
-		if (text[i] != '&') //TODO в конст
+		if (text[i] != ENTITY_START)
 		{
 			continue;
 		}
 
-		const size_t semicolonPos = text.find(';', i); //TODO в конст
+		const size_t semicolonPos = text.find(ENTITY_END, i);
 		if (semicolonPos == std::string::npos)
 		{
 			break;
