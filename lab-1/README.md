@@ -6,4 +6,4 @@
 - [Задание 2: radix - 100 баллов](radix/radix.cpp)
 - [Задание 3: invert - 80 баллов](invert/invert.cpp)
 - [Задание 4: crypt - 120 баллов](crypt/crypt.cpp)
-- [Задание 5: fill - 180 баллов]()
+- [Задание 5: fill - 180 баллов](fill/fill.cpp)
