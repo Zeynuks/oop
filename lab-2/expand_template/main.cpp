@@ -90,31 +90,33 @@ inline void ShowHelpMessage()
 		<< "  expand_template -h | --help  # show this help message\n";
 }
 
-int main(const int argc, char* argv[]) //TODO Вынести
+void ExecuteApplication(const AppMode mode, const int argc, char* argv[])
+{
+	TemplateStorage storage;
+
+	switch (mode)
+	{
+	case AppMode::File:
+		ApplyTemplate(argc, argv, storage);
+		break;
+	case AppMode::Stdin:
+		ApplyTemplate(storage);
+		break;
+	case AppMode::Help:
+		ShowHelpMessage();
+		break;
+	default:
+		throw std::runtime_error("Invalid arguments. Use -h or --help.");
+	}
+}
+
+int main(const int argc, char* argv[])
 {
 	const AppMode mode = DefineAppMode(argc, argv);
 
 	try
 	{
-		TemplateStorage storage;
-
-		switch (mode)
-		{
-		case AppMode::File:
-			ApplyTemplate(argc, argv, storage);
-			break;
-
-		case AppMode::Stdin:
-			ApplyTemplate(storage);
-			break;
-
-		case AppMode::Help:
-			ShowHelpMessage();
-			break;
-
-		case AppMode::Invalid:
-			throw std::runtime_error("Invalid arguments. Use -h or --help.");
-		}
+		ExecuteApplication(mode, argc, argv);
 	}
 	catch (const std::exception& e)
 	{
