@@ -29,6 +29,8 @@ public:
 		{
 			m_out << "Function: " << name << ":" << value;
 		}
+
+		m_out << std::endl;
 	}
 
 private:
