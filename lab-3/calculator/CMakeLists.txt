@@ -10,4 +10,4 @@ add_library(calculator_lib
 add_executable(Calculator main.cpp)
 target_link_libraries(Calculator calculator_lib)
 
-#add_subdirectory(tests)
+add_subdirectory(tests)
