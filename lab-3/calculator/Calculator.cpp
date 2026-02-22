@@ -67,22 +67,22 @@ bool Calculator::DefineFunction(const std::string& id, const std::string& operan
 	return true;
 }
 
-bool Calculator::DefineFunction(const std::string& id, const std::string& left, const Operation operation, const std::string& right)
+bool Calculator::DefineFunction(const std::string& id, const Function& function)
 {
 	if (Exists(id))
 	{
 		throw std::invalid_argument("Identifier '" + id + "' already exists");
 	}
-	if (!Exists(left))
+	if (!Exists(function.left))
 	{
-		throw std::invalid_argument("Left operand '" + left + "' does not exist");
+		throw std::invalid_argument("Left operand '" + function.left + "' does not exist");
 	}
-	if (!Exists(right))
+	if (!Exists(function.right))
 	{
-		throw std::invalid_argument("Right operand '" + right + "' does not exist");
+		throw std::invalid_argument("Right operand '" + function.right + "' does not exist");
 	}
 
-	m_functions[id] = { left, right, operation, true };
+	m_functions[id] = { function.left, function.right, function.operation, true };
 
 	return true;
 }

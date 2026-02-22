@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ParseArguments.hpp"
 #include "../Calculator.hpp"
+#include "../ParseArguments.hpp"
 #include "ICommand.hpp"
 
 #include <stdexcept>
@@ -43,7 +43,8 @@ public:
 	{
 		if (m_isBinary)
 		{
-			m_calc.DefineFunction(m_fnId, m_leftId, m_op, m_rightId);
+			const Calculator::Function function{ m_leftId, m_rightId, m_op };
+			m_calc.DefineFunction(m_fnId, function);
 		}
 		else
 		{
