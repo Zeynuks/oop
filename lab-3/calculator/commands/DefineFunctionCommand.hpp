@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Calculator.hpp"
+#include "../core/Calculator.hpp"
 #include "../ParseArguments.hpp"
 #include "ICommand.hpp"
 
@@ -50,9 +50,9 @@ public:
 
 	void Execute() override
 	{
-		if (m_op != Calculator::Operation::None)
+		if (m_op != Operation::None)
 		{
-			const Calculator::Function function{ m_leftId, m_rightId, m_op, true };
+			const Calculator::Function function{ m_leftId, m_rightId, m_op };
 			m_calc.DefineFunction(m_fnId, function);
 		}
 		else
@@ -66,15 +66,15 @@ private:
 	std::string m_fnId;
 	std::string m_leftId;
 	std::string m_rightId;
-	Calculator::Operation m_op = Calculator::Operation::None;
+	Operation m_op;
 
-	static Calculator::Operation ParseOperation(const std::string& operation)
+	static Operation ParseOperation(const std::string& operation)
 	{
-		static const std::map<std::string, Calculator::Operation> operations = {
-			{ "+", Calculator::Operation::Add },
-			{ "-", Calculator::Operation::Sub },
-			{ "*", Calculator::Operation::Mul },
-			{ "/", Calculator::Operation::Div }
+		static const std::unordered_map<std::string, Operation> operations = {
+			{ "+", Operation::Add },
+			{ "-", Operation::Sub },
+			{ "*", Operation::Mul },
+			{ "/", Operation::Div }
 		};
 
 		if (const auto it = operations.find(operation); it != operations.end())

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../ParseArguments.hpp"
-#include "../Calculator.hpp"
+#include "../core/Calculator.hpp"
 #include "ICommand.hpp"
 
 #include <iomanip>

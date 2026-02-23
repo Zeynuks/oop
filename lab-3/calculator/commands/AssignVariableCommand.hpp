@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Calculator.hpp"
+#include "../core/Calculator.hpp"
 #include "../ParseArguments.hpp"
 #include "ICommand.hpp"
 
@@ -54,7 +54,7 @@ public:
 		}
 		catch (const std::invalid_argument&)
 		{
-			m_calc.AssignVariableFromId(m_id1, m_valueOrId2);
+			m_calc.AssignVariable(m_id1, m_valueOrId2);
 		}
 	}
 

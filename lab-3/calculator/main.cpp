@@ -1,5 +1,5 @@
-#include "Calculator.hpp"
 #include "Menu.hpp"
+#include "./core/Calculator.hpp"
 #include "commands/AssignVariableCommand.hpp"
 #include "commands/DeclareVariableCommand.hpp"
 #include "commands/DefineFunctionCommand.hpp"

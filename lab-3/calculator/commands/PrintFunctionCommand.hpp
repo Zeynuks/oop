@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../ParseArguments.hpp"
-#include "../Calculator.hpp"
+#include "../core/Calculator.hpp"
 #include "ICommand.hpp"
 
 #include <iostream>
@@ -35,10 +35,10 @@ public:
 
 		for (const auto& [name, value] : functions)
 		{
-			m_out << "Function: " << name << ":" << value;
+			m_out << "Function: " << name << ":" << value<< std::endl;
 		}
 
-		m_out << std::endl;
+
 	}
 
 private:
