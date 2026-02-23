@@ -64,6 +64,14 @@ inline std::vector<std::string> ParseArguments(const std::vector<std::string>& a
 {
 	std::vector<std::string> result;
 
+	std::cout << "Input args: [";
+	for (size_t i = 0; i < args.size(); ++i)
+	{
+		std::cout << "\"" << args[i] << "\"";
+		if (i + 1 < args.size()) std::cout << ", ";
+	}
+	std::cout << "]\n";
+
 	for (auto& s : args)
 	{
 		std::string_view sv(s);
@@ -94,6 +102,14 @@ inline std::vector<std::string> ParseArguments(const std::vector<std::string>& a
 			result.emplace_back(sv);
 		}
 	}
+
+	std::cout << "Parsed args: [";
+	for (size_t i = 0; i < result.size(); ++i)
+	{
+		std::cout << "\"" << result[i] << "\"";
+		if (i + 1 < result.size()) std::cout << ", ";
+	}
+	std::cout << "]\n";
 
 	return result;
 }

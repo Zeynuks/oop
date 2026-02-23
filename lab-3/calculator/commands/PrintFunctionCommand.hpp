@@ -16,6 +16,15 @@ public:
 	{
 	}
 
+	void ParseArgs(const std::vector<std::string>& args) override
+	{
+
+		if (const auto arguments = ParseArguments(args); !arguments.empty())
+		{
+			throw std::invalid_argument("Too many arguments");
+		}
+	}
+
 	void Execute() override
 	{
 		const auto functions = m_calc.GetAllFunctions();

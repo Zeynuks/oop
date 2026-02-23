@@ -46,4 +46,7 @@ private:
 	double GetCalculatedFunctionValue(const std::string& rootId);
 	void FillEvaluationCache(const std::string& rootId);
 	double ExecuteOperation(const Function& function);
+	static bool IsValidVariable(const std::string& id);
+	bool IsOperandValid(const std::string& operand) const;
+	double GetValueOrNumber(const std::string& idOrNumber);
 };

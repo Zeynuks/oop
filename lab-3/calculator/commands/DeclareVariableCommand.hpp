@@ -23,6 +23,11 @@ public:
 			throw std::invalid_argument("Usage: var <identifier>");
 		}
 
+		if (arguments.size() > 1)
+		{
+			throw std::invalid_argument("Too many arguments");
+		}
+
 		m_id = arguments[0];
 	}
 

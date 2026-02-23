@@ -31,6 +31,16 @@ public:
 
 		m_leftId = arguments[2];
 
+		if (arguments.size() > 5)
+		{
+			throw std::invalid_argument("Too many arguments");
+		}
+
+		for (auto arg: arguments)
+		{
+			std::cout << arg << std::endl;
+		}
+
 		if (arguments.size() == 5)
 		{
 			m_op = ParseOperation(arguments[3]);
@@ -42,7 +52,7 @@ public:
 	{
 		if (m_op != Calculator::Operation::None)
 		{
-			const Calculator::Function function{ m_leftId, m_rightId, m_op };
+			const Calculator::Function function{ m_leftId, m_rightId, m_op, true };
 			m_calc.DefineFunction(m_fnId, function);
 		}
 		else

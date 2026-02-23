@@ -25,6 +25,11 @@ public:
 			throw std::invalid_argument("Usage: print <id>");
 		}
 
+		if (arguments.size() > 1)
+		{
+			throw std::invalid_argument("Too many arguments");
+		}
+
 		m_id = arguments[0];
 	}
 

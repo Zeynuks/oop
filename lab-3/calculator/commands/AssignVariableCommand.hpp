@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ParseArguments.hpp"
 #include "../Calculator.hpp"
+#include "../ParseArguments.hpp"
 #include "ICommand.hpp"
 
 #include <stdexcept>
@@ -30,13 +30,32 @@ public:
 			throw std::invalid_argument("Expected '=' after variable name");
 		}
 
+		if (arguments.size() > 3)
+		{
+			throw std::invalid_argument("Too many arguments");
+		}
+
 		m_valueOrId2 = arguments[2];
 	}
 
 	void Execute() override
 	{
-		const double value = std::stod(m_valueOrId2);
-		m_calc.AssignVariable(m_id1, value);
+		try
+		{
+			size_t pos;
+			const double value = std::stod(m_valueOrId2, &pos);
+
+			if (pos != m_valueOrId2.size())
+			{
+				throw std::invalid_argument("Extra characters after number");
+			}
+
+			m_calc.AssignVariable(m_id1, value);
+		}
+		catch (const std::invalid_argument&)
+		{
+			m_calc.AssignVariableFromId(m_id1, m_valueOrId2);
+		}
 	}
 
 private:

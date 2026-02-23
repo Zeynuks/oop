@@ -6,6 +6,11 @@ constexpr double NAN_VALUE = std::numeric_limits<double>::quiet_NaN();
 
 bool Calculator::DeclareVariable(const std::string& id)
 {
+	if (!IsValidVariable(id))
+	{
+		throw std::invalid_argument("Invalid variable name: '" + id + "'");
+	}
+
 	if (Exists(id))
 	{
 		throw std::invalid_argument("Variable '" + id + "' already exists");
@@ -53,11 +58,17 @@ bool Calculator::AssignVariableFromId(const std::string& id1, const std::string&
 
 bool Calculator::DefineFunction(const std::string& id, const std::string& operand)
 {
+	if (!IsValidVariable(id))
+	{
+		throw std::invalid_argument("Invalid variable name: '" + id + "'");
+	}
+
 	if (Exists(id))
 	{
-		throw std::invalid_argument("Identifier '" + id + "' already exists");
+		throw std::invalid_argument("Variable '" + id + "' already exists");
 	}
-	if (!Exists(operand))
+
+	if (!IsOperandValid(operand))
 	{
 		throw std::invalid_argument("Operand '" + operand + "' does not exist");
 	}
@@ -69,15 +80,22 @@ bool Calculator::DefineFunction(const std::string& id, const std::string& operan
 
 bool Calculator::DefineFunction(const std::string& id, const Function& function)
 {
+	if (!IsValidVariable(id))
+	{
+		throw std::invalid_argument("Invalid function name: '" + id + "'");
+	}
+
 	if (Exists(id))
 	{
-		throw std::invalid_argument("Identifier '" + id + "' already exists");
+		throw std::invalid_argument("Variable '" + id + "' already exists");
 	}
-	if (!Exists(function.left))
+
+	if (!IsOperandValid(function.left))
 	{
 		throw std::invalid_argument("Left operand '" + function.left + "' does not exist");
 	}
-	if (!Exists(function.right))
+
+	if (function.isBinary && !IsOperandValid(function.right))
 	{
 		throw std::invalid_argument("Right operand '" + function.right + "' does not exist");
 	}
@@ -93,12 +111,13 @@ double Calculator::GetValue(const std::string& id)
 	{
 		return m_variables.at(id);
 	}
+
 	if (m_functions.contains(id))
 	{
 		return GetCalculatedFunctionValue(id);
 	}
 
-	throw std::invalid_argument("Identifier '" + id + "' not found");
+	throw std::invalid_argument("Variable '" + id + "' not found");
 }
 
 const std::map<std::string, double>& Calculator::GetAllVariables() const
@@ -194,13 +213,13 @@ void Calculator::FillEvaluationCache(const std::string& rootId)
 
 double Calculator::ExecuteOperation(const Function& function)
 {
-	const double leftVal = GetValue(function.left);
+	const double leftVal = GetValueOrNumber(function.left);
 	if (!function.isBinary)
 	{
 		return leftVal;
 	}
 
-	const double rightVal = GetValue(function.right);
+	const double rightVal = GetValueOrNumber(function.right);
 
 	if (std::isnan(leftVal) || std::isnan(rightVal))
 	{
@@ -223,5 +242,71 @@ double Calculator::ExecuteOperation(const Function& function)
 		return leftVal / rightVal;
 	default:
 		throw std::logic_error("Undefined operation");
+	}
+}
+
+bool Calculator::IsValidVariable(const std::string& id)
+{
+	if (id.empty())
+	{
+		return false;
+	}
+
+	if (!std::isalpha(static_cast<unsigned char>(id[0])) && id[0] != '_')
+	{
+		return false;
+	}
+
+	for (size_t i = 1; i < id.size(); ++i)
+	{
+		if (!std::isalnum(static_cast<unsigned char>(id[i])) && id[i] != '_')
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Calculator::IsOperandValid(const std::string& operand) const
+{
+	if (Exists(operand))
+	{
+		return true;
+	}
+
+	try
+	{
+		size_t pos;
+		std::stod(operand, &pos);
+		return pos == operand.size();
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+double Calculator::GetValueOrNumber(const std::string& idOrNumber)
+{
+	if (m_variables.contains(idOrNumber) || m_functions.contains(idOrNumber))
+	{
+		return GetValue(idOrNumber);
+	}
+
+	try
+	{
+		size_t pos;
+		const double value = std::stod(idOrNumber, &pos);
+		if (pos != idOrNumber.size())
+		{
+			throw std::invalid_argument("Invalid number: " + idOrNumber);
+		}
+
+		return value;
+	}
+	catch (...)
+	{
+		throw std::invalid_argument("Operand '" + idOrNumber + "' does not exist");
 	}
 }
