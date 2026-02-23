@@ -100,11 +100,6 @@ std::unordered_map<std::string, double> Calculator::GetAllFunctions()
 	return res;
 }
 
-bool Calculator::Exists(const std::string& id) const
-{
-	return m_env.Exists(id);
-}
-
 Operation Calculator::MapOperation(const Operation operation)
 {
 	switch (operation)
