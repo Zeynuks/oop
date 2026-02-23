@@ -6,5 +6,3 @@ add_library(calculator_lib
         IExpression.cpp
         IExpression.hpp
 )
-
-target_link_libraries(Calculator calculator_lib)
