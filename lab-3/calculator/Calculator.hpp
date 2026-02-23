@@ -1,10 +1,7 @@
 #pragma once
 
-#include <cmath>
-#include <map>
-#include <optional>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 class Calculator
 {
@@ -33,14 +30,14 @@ public:
 	bool DefineFunction(const std::string& id, const Function& function);
 
 	double GetValue(const std::string& id);
-	[[nodiscard]] const std::map<std::string, double>& GetAllVariables() const;
-	std::map<std::string, double> GetAllFunctions();
+	[[nodiscard]] const std::unordered_map<std::string, double>& GetAllVariables() const;
+	std::unordered_map<std::string, double> GetAllFunctions();
 	[[nodiscard]] bool Exists(const std::string& id) const;
 
 private:
-	std::map<std::string, double> m_variables;
-	std::map<std::string, Function> m_functions;
-	std::map<std::string, double> m_cache;
+	std::unordered_map<std::string, double> m_variables;
+	std::unordered_map<std::string, Function> m_functions;
+	std::unordered_map<std::string, double> m_cache;
 
 	void ClearCache();
 	double GetCalculatedFunctionValue(const std::string& rootId);

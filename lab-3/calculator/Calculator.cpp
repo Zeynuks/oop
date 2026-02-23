@@ -1,6 +1,9 @@
 #include "Calculator.hpp"
+
+#include <cmath>
 #include <ranges>
 #include <stdexcept>
+#include <vector>
 
 constexpr double NAN_VALUE = std::numeric_limits<double>::quiet_NaN();
 
@@ -120,14 +123,14 @@ double Calculator::GetValue(const std::string& id)
 	throw std::invalid_argument("Variable '" + id + "' not found");
 }
 
-const std::map<std::string, double>& Calculator::GetAllVariables() const
+const std::unordered_map<std::string, double>& Calculator::GetAllVariables() const
 {
 	return m_variables;
 }
 
-std::map<std::string, double> Calculator::GetAllFunctions()
+std::unordered_map<std::string, double> Calculator::GetAllFunctions()
 {
-	std::map<std::string, double> results;
+	std::unordered_map<std::string, double> results;
 	for (const auto& name : m_functions | std::views::keys)
 	{
 		results[name] = GetCalculatedFunctionValue(name);

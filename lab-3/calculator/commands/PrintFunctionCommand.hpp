@@ -4,7 +4,6 @@
 #include "../Calculator.hpp"
 #include "ICommand.hpp"
 
-#include <iomanip>
 #include <iostream>
 
 class PrintFunctionCommand : public ICommand
