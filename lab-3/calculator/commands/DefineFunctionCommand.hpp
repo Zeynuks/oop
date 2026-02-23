@@ -35,13 +35,12 @@ public:
 		{
 			m_op = ParseOperation(arguments[3]);
 			m_rightId = arguments[4];
-			m_isBinary = true;
 		}
 	}
 
 	void Execute() override
 	{
-		if (m_isBinary)
+		if (m_op != Calculator::Operation::None)
 		{
 			const Calculator::Function function{ m_leftId, m_rightId, m_op };
 			m_calc.DefineFunction(m_fnId, function);
@@ -54,9 +53,10 @@ public:
 
 private:
 	Calculator& m_calc;
-	std::string m_fnId, m_leftId, m_rightId;
+	std::string m_fnId;
+	std::string m_leftId;
+	std::string m_rightId;
 	Calculator::Operation m_op = Calculator::Operation::None;
-	bool m_isBinary = false;
 
 	static Calculator::Operation ParseOperation(const std::string& operation)
 	{
