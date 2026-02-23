@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 23)
+
 project(Dictionary)
 
 enable_testing()
