@@ -1,61 +1,71 @@
 #include "InMemoryStorage.h"
 
-Entry* InMemoryStorage::Add(const std::string& word)
+Entry& InMemoryStorage::Add(const std::string& word)
 {
-	auto entry = std::make_unique<Entry>();
-	entry->word = word;
-	m_entries.push_back(std::move(entry));
-	Entry* ptr = m_entries.back().get();
-	m_wordIndex[word] = ptr;
+	m_entries.emplace_back();
+	Entry& entry = m_entries.back();
+	entry.word = word;
 
-	return ptr;
+	m_wordIndex[word] = &entry;
+	return entry;
 }
 
-Entry* InMemoryStorage::Get(const std::string& word) const
+Entry& InMemoryStorage::Get(const std::string& word) const
 {
 	const auto it = m_wordIndex.find(word);
 	if (it == m_wordIndex.end())
 	{
-		return nullptr;
+		throw std::out_of_range("Word not found");
 	}
 
-	return it->second;
+	return *it->second;
 }
 void InMemoryStorage::Load(const std::vector<Translations>& translations)
 {
 	for (const auto& [word, translation] : translations)
 	{
-		auto wordEntry = Get(word);
-		if (!wordEntry)
+		Entry* word_entry = nullptr;
+		Entry* translation_entry = nullptr;
+
+		auto it_word = m_wordIndex.find(word);
+		if (it_word == m_wordIndex.end())
 		{
-			wordEntry = Add(word);
+			word_entry = &Add(word);
+		}
+		else
+		{
+			word_entry = it_word->second;
 		}
 
-		auto translationEntry = Get(translation);
-		if (!translationEntry)
+		auto it_translation = m_wordIndex.find(translation);
+		if (it_translation == m_wordIndex.end())
 		{
-			translationEntry = Add(translation);
+			translation_entry = &Add(translation);
+		}
+		else
+		{
+			translation_entry = it_translation->second;
 		}
 
-		wordEntry->translations.insert(translationEntry);
-		translationEntry->translations.insert(wordEntry);
+		word_entry->translations.insert(translation_entry);
+		translation_entry->translations.insert(word_entry);
 	}
 }
 
 std::vector<Translations> InMemoryStorage::Upload() const
 {
-	std::vector<Translations> translations;
+	std::vector<Translations> result;
 
-	for (const auto& entry : m_entries)
+	for (const auto& [word, translations] : m_entries)
 	{
-		for (const Entry* translation : entry->translations)
+		for (const Entry* translation : translations)
 		{
-			if (entry->word < translation->word)
+			if (word < translation->word)
 			{
-				translations.emplace_back(entry->word, translation->word);
+				result.emplace_back(word, translation->word);
 			}
 		}
 	}
 
-	return translations;
+	return result;
 }
