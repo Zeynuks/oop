@@ -4,11 +4,11 @@
 #include <optional>
 #include <stdexcept>
 
-constexpr char OP_ADD = '+';
-constexpr char OP_SUB = '-';
-constexpr char OP_MUL = '*';
-constexpr char BRACKET_OPEN = '(';
-constexpr char BRACKET_CLOSE = ')';
+constexpr char operatorAdd = '+';
+constexpr char operatorSub = '-';
+constexpr char operatorMul = '*';
+constexpr char bracketOpen = '(';
+constexpr char bracketClose = ')';
 
 void SkipSpaces(const std::string& line, std::size_t& i)
 {
@@ -22,7 +22,7 @@ long long ParseNumber(const std::string& line, std::size_t& i)
 {
 	const std::size_t start = i;
 
-	if (line[i] == OP_SUB)
+	if (line[i] == operatorSub)
 	{
 		++i;
 	}
@@ -49,11 +49,11 @@ void AddArgument(Expression& expression, const long long value)
 		return;
 	}
 
-	if (expression.operation == OP_ADD)
+	if (expression.operation == operatorAdd)
 	{
 		expression.value += value;
 	}
-	else if (expression.operation == OP_MUL)
+	else if (expression.operation == operatorMul)
 	{
 		expression.value *= value;
 	}
@@ -77,7 +77,7 @@ void HandleOperation(Stack<Expression>& stack, const char op, std::size_t& i)
 	}
 
 	stack.Top().operation = op;
-	if (op == OP_MUL)
+	if (op == operatorMul)
 	{
 		stack.Top().value = 1;
 	}
@@ -140,7 +140,7 @@ std::optional<long long> HandleToken(Stack<Expression>& stack, const std::string
 
 	const char ch = line[i];
 
-	if (std::isdigit(ch) || ch == OP_SUB)
+	if (std::isdigit(ch) || ch == operatorSub)
 	{
 		HandleNumber(stack, line, i);
 		return std::nullopt;
@@ -148,18 +148,18 @@ std::optional<long long> HandleToken(Stack<Expression>& stack, const std::string
 
 	switch (ch)
 	{
-	case BRACKET_OPEN:
+	case bracketOpen:
 	{
 		HandleOpenBracket(stack, i);
 		return std::nullopt;
 	}
-	case OP_ADD:
-	case OP_MUL:
+	case operatorAdd:
+	case operatorMul:
 	{
 		HandleOperation(stack, ch, i);
 		return std::nullopt;
 	}
-	case BRACKET_CLOSE:
+	case bracketClose:
 	{
 		return HandleCloseBracket(stack, i, line);
 	}
