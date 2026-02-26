@@ -86,6 +86,9 @@ void RunDictionary(const Dictionary& dictionary, const InMemoryStorage& storage,
 
 int main()
 {
+	int a = 3;
+	int* b = &a;
+	std::cout << sizeof(b);
 	try
 	{
 		InMemoryStorage storage;

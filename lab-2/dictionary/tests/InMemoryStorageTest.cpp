@@ -5,7 +5,7 @@
 #include <deque>
 #include <set>
 
-using EntryDto = std::pair<std::string, std::string>;
+using Translations = std::pair<std::string, std::string>;
 
 TEST(InMemoryStorageTest, AddAndGetWord)
 {
@@ -39,7 +39,7 @@ TEST(InMemoryStorageTest, LoadDTOs)
 {
 	InMemoryStorage storage;
 
-	std::deque<EntryDto> dtos = {
+	std::deque<Translations> dtos = {
 		{ "dog", "собака" },
 		{ "dog", "пёс" },
 		{ "cat", "кот" }
@@ -72,7 +72,7 @@ TEST(InMemoryStorageTest, UploadDTOs)
 
 	storage.Load({ { "dog", "собака" }, { "dog", "пёс" }, { "cat", "кот" } });
 
-	std::deque<EntryDto> uploaded = storage.Upload();
+	std::deque<Translations> uploaded = storage.Upload();
 
 	const std::set dtoSet(uploaded.begin(), uploaded.end());
 

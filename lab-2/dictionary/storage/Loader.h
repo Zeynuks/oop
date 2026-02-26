@@ -11,8 +11,8 @@ class Loader
 public:
 	explicit Loader(std::string filename);
 
-	std::deque<EntryDto> LoadData() const;
-	void SaveData(std::deque<EntryDto>& dtos) const;
+	std::deque<Translations> LoadData() const;
+	void SaveData(std::deque<Translations>& dtos) const;
 
 private:
 	std::string m_filename;

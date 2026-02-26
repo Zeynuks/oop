@@ -21,7 +21,7 @@ Entry* InMemoryStorage::Get(const std::string& word) const
 
 	return it->second;
 }
-void InMemoryStorage::Load(const std::deque<EntryDto>& dtos)
+void InMemoryStorage::Load(const std::deque<Translations>& dtos)
 {
 	for (const auto& [word, translation] : dtos)
 	{
@@ -42,9 +42,9 @@ void InMemoryStorage::Load(const std::deque<EntryDto>& dtos)
 	}
 }
 
-std::deque<EntryDto> InMemoryStorage::Upload() const
+std::deque<Translations> InMemoryStorage::Upload() const
 {
-	std::deque<EntryDto> dtos;
+	std::deque<Translations> dtos;
 
 	for (const auto& entry : m_entries)
 	{
