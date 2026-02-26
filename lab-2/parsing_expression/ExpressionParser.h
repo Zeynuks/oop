@@ -2,11 +2,6 @@
 
 #include <string>
 
-constexpr char OP_ADD = '+';
-constexpr char OP_SUB = '-';
-constexpr char OP_MUL = '*';
-constexpr char BRACKET_OPEN = '(';
-constexpr char BRACKET_CLOSE = ')';
 
 struct Expression
 {
@@ -15,4 +10,4 @@ struct Expression
 	bool has_argument = false;
 };
 
-long long ParseExpression(const std::string& line);
+int64_t ParseExpression(const std::string& line);

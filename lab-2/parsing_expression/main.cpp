@@ -14,7 +14,7 @@ int main()
 		{
 			if (!line.empty())
 			{
-				const long long result = ParseExpression(line);
+				const int64_t result = ParseExpression(line);
 				std::cout << result << std::endl;
 			}
 		}

@@ -4,6 +4,12 @@
 #include <optional>
 #include <stdexcept>
 
+constexpr char OP_ADD = '+';
+constexpr char OP_SUB = '-';
+constexpr char OP_MUL = '*';
+constexpr char BRACKET_OPEN = '(';
+constexpr char BRACKET_CLOSE = ')';
+
 void SkipSpaces(const std::string& line, std::size_t& i)
 {
 	while (i < line.size() && std::isspace(line[i]))
@@ -164,7 +170,7 @@ std::optional<long long> HandleToken(Stack<Expression>& stack, const std::string
 	}
 }
 
-long long ParseExpression(const std::string& line)
+int64_t ParseExpression(const std::string& line)
 {
 	Stack<Expression> stack;
 	std::size_t i = 0;
