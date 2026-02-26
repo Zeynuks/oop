@@ -1,6 +1,6 @@
 add_subdirectory(vector)
 add_subdirectory(html_decode)
-#add_subdirectory(dictionary)
+add_subdirectory(dictionary)
 #add_subdirectory(generator)
 #add_subdirectory(parser)
 add_subdirectory(expand_template)
