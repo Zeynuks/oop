@@ -1,0 +1,3 @@
+add_library(aho_corasick_lib INTERFACE)
+
+target_include_directories(aho_corasick_lib INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
