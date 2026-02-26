@@ -82,7 +82,7 @@ public:
 	 *
 	 * @return Ссылка на map с именами и значениями переменных
 	 */
-	const std::unordered_map<std::string, double>& GetAllVariables() const;
+	std::unordered_map<std::string, double> GetAllVariables() const;
 
 	/**
 	 * @brief Возвращает все определенные функции с их вычисленными значениями.

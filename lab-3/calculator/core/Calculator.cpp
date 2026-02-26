@@ -84,7 +84,7 @@ double Calculator::GetValue(const std::string& id)
 	return m_env.GetValue(id);
 }
 
-const std::unordered_map<std::string, double>& Calculator::GetAllVariables() const
+std::unordered_map<std::string, double> Calculator::GetAllVariables() const
 {
 	return m_env.GetAllVariables();
 }

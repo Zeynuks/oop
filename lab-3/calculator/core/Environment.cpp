@@ -102,12 +102,12 @@ void Environment::FillEvaluationCache(const std::string& rootId)
 	}
 }
 
-const std::unordered_map<std::string, double>& Environment::GetAllVariables() const
+std::unordered_map<std::string, double> Environment::GetAllVariables() const
 {
 	return m_variables;
 }
 
-const std::unordered_map<std::string, std::shared_ptr<IExpression>>& Environment::GetAllFunctions() const
+std::unordered_map<std::string, std::shared_ptr<IExpression>> Environment::GetAllFunctions() const
 {
 	return m_functions;
 }

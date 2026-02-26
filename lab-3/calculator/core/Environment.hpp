@@ -77,14 +77,14 @@ public:
 	 *
 	 * @return Константная ссылка на unordered_map с именами и значениями переменных
 	 */
-	const std::unordered_map<std::string, double>& GetAllVariables() const;
+	std::unordered_map<std::string, double> GetAllVariables() const;
 
 	/**
 	 * @brief Возвращает все функции с их выражениями.
 	 *
 	 * @return Константная ссылка на unordered_map с именами функций и указателями на IExpression
 	 */
-	const std::unordered_map<std::string, std::shared_ptr<IExpression>>& GetAllFunctions() const;
+	std::unordered_map<std::string, std::shared_ptr<IExpression>> GetAllFunctions() const;
 
 private:
 	/**
