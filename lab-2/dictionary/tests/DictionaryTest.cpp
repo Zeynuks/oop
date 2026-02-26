@@ -12,18 +12,6 @@ struct TestEntry : Entry
 	}
 };
 
-TEST(DictionaryTest, AddWordCallsStorageAddWithNormalizedWord)
-{
-	MockStorage storage;
-	const Dictionary dict(storage);
-
-	TestEntry entry("hello");
-
-	EXPECT_CALL(storage, Add("hello")).WillOnce(testing::Return(&entry));
-
-	dict.AddWord("  HeLLo  ");
-}
-
 TEST(DictionaryTest, AddWordWithTranslationAddsBothWords)
 {
 	MockStorage storage;

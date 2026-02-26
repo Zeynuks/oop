@@ -10,13 +10,6 @@ Dictionary::Dictionary(IStorage& storage)
 {
 }
 
-void Dictionary::AddWord(const std::string& word) const
-{
-	const std::string normalized = Normalize(word);
-
-	m_storage.Add(normalized);
-}
-
 void Dictionary::AddWord(const std::string& word, const std::string& translation) const
 {
 	const std::string normalizedWord = Normalize(word);

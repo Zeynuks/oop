@@ -8,7 +8,6 @@ class Dictionary
 public:
 	explicit Dictionary(IStorage& storage);
 
-	void AddWord(const std::string& word) const;
 	void AddWord(const std::string& word, const std::string& translation) const;
 
 	[[nodiscard]] std::unordered_set<std::string> GetTranslations(const std::string& word) const;
