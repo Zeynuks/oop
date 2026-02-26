@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <regex>
 
-constexpr int MIN_PORT = 1;
-constexpr int MAX_PORT = 65535;
-const std::regex URL_REGEX(R"(^([a-zA-Z]+):\/\/([a-zA-Z0-9\.\-]+)(?::([0-9]{1,5}))?(?:\/([^?#\s]*))?)", std::regex::icase);
+constexpr int minPort = 1;
+constexpr int maxPort = 65535;
+const std::regex urlRegex(R"(^([a-zA-Z]+):\/\/([a-zA-Z0-9\.\-]+)(?::([0-9]{1,5}))?(?:\/([^?#\s]*))?)", std::regex::icase);
 
 struct ProtocolInfo
 {
@@ -79,13 +79,13 @@ bool TryParsePort(const std::string_view portStr, const std::string_view protoco
 
 		value = value * 10 + (c - '0');
 
-		if (value > MAX_PORT)
+		if (value > maxPort)
 		{
 			return false;
 		}
 	}
 
-	if (value < MIN_PORT)
+	if (value < minPort)
 	{
 		return false;
 	}
@@ -100,7 +100,7 @@ bool TryParseURL(const std::string_view url, UrlData& result)
 	UrlData temp;
 	std::cmatch match;
 
-	if (!std::regex_match(url.begin(), url.end(), match, URL_REGEX))
+	if (!std::regex_match(url.begin(), url.end(), match, urlRegex))
 	{
 		return false;
 	}
