@@ -1,0 +1,5 @@
+add_executable(expand_template_tests tests.cpp)
+
+target_link_libraries(expand_template_tests gtest_main template_storage_lib)
+
+add_test(NAME ExpandTemplateTests COMMAND expand_template_tests)
