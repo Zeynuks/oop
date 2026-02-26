@@ -1,9 +1,11 @@
 #include "core/Dictionary.h"
 #include "storage/InMemoryStorage.h"
-#include "storage/Loader.h"
+#include "storage/Loader.cpp"
 
 #include <iostream>
 #include <string>
+
+constexpr std::string dictionaryFileName = "data/dict.dat";
 
 void PrintTranslations(const std::unordered_set<std::string>& translations)
 {
@@ -21,7 +23,7 @@ void PrintTranslations(const std::unordered_set<std::string>& translations)
 bool HandleUnknownWord(const Dictionary& dictionary, const std::string& word)
 {
 	std::cout << "Неизвестное слово \"" << word
-			  << "\". Введите перевод или пустую строку для отказа:\n> ";
+			  << "\". Введите перевод или пустую строку для отказа:" << std::endl;
 
 	std::string value;
 	std::getline(std::cin, value);
@@ -29,23 +31,23 @@ bool HandleUnknownWord(const Dictionary& dictionary, const std::string& word)
 	if (!value.empty())
 	{
 		dictionary.AddWord(word, value);
-		std::cout << "Слово \"" << word << "\" сохранено как \"" << value << "\".\n";
+		std::cout << "Слово \"" << word << "\" сохранено как \"" << value << "\"." << std::endl;
 		return true;
 	}
 
-	std::cout << "Слово \"" << word << "\" проигнорировано.\n";
+	std::cout << "Слово \"" << word << "\" проигнорировано." << std::endl;
 	return false;
 }
 
 bool AskSaveChanges()
 {
-	std::cout << "В словарь были внесены изменения. Введите Y или y для сохранения:\n";
+	std::cout << "В словарь были внесены изменения. Введите Y или y для сохранения:" << std::endl;
 	std::string answer;
 	std::getline(std::cin, answer);
 	return answer == "Y" || answer == "y";
 }
 
-void RunDictionary(const Dictionary& dictionary, const InMemoryStorage& storage, const Loader& loader)
+void RunDictionary(const Dictionary& dictionary, const InMemoryStorage& storage)
 {
 	bool changed = false;
 	std::string input;
@@ -78,28 +80,24 @@ void RunDictionary(const Dictionary& dictionary, const InMemoryStorage& storage,
 
 	if (changed && AskSaveChanges())
 	{
-		auto dtos = storage.Upload();
-		loader.SaveData(dtos);
-		std::cout << "Изменения сохранены. До свидания.\n";
+		const auto translations = storage.Upload();
+		Loader::SaveData(dictionaryFileName, translations);
+		std::cout << "Изменения сохранены. До свидания." << std::endl;
 	}
 }
 
 int main()
 {
-	int a = 3;
-	int* b = &a;
-	std::cout << sizeof(b);
 	try
 	{
 		InMemoryStorage storage;
-		const Loader loader("data/dict.dat");
 
-		const auto data = loader.LoadData();
-		storage.Load(data);
+		const auto translations = Loader::LoadData(dictionaryFileName);
+		storage.Load(translations);
 
 		const Dictionary dictionary(storage);
 
-		RunDictionary(dictionary, storage, loader);
+		RunDictionary(dictionary, storage);
 	}
 	catch (const std::exception& error)
 	{

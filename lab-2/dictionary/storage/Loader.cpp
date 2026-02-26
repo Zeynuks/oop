@@ -1,4 +1,4 @@
-#include "Loader.h"
+#include "IStorage.h"
 
 #include <filesystem>
 #include <fstream>
@@ -6,36 +6,34 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
-Loader::Loader(std::string filename)
-	: m_filename(std::move(filename))
+namespace Loader
 {
-}
-
-std::deque<std::pair<std::string, std::string>> Loader::LoadData() const
+std::vector<Translations> LoadData(std::string filename)
 {
-	if (!std::filesystem::exists(m_filename))
+	if (!std::filesystem::exists(filename))
 	{
-		if (std::filesystem::path filepath(m_filename); !std::filesystem::exists(filepath.parent_path()))
+		if (std::filesystem::path filepath(filename); !std::filesystem::exists(filepath.parent_path()))
 		{
 			std::filesystem::create_directories(filepath.parent_path());
 		}
 
-		if (std::ofstream newFile(m_filename); !newFile.is_open())
+		if (std::ofstream newFile(filename); !newFile.is_open())
 		{
-			throw std::runtime_error("Cannot create new dictionary file: " + m_filename);
+			throw std::runtime_error("Cannot create new dictionary file: " + filename);
 		}
 
-		std::cout << "Файл словаря не найден. Создан новый файл: " << m_filename << std::endl; // Нужно ли
+		std::cout << "Файл словаря не найден. Создан новый файл: " << filename << std::endl; // Нужно ли
 	}
 
-	std::ifstream file(m_filename);
+	std::ifstream file(filename);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("Cannot open dictionary file: " + m_filename);
+		throw std::runtime_error("Cannot open dictionary file: " + filename);
 	}
 
-	std::deque<std::pair<std::string, std::string>> words;
+	std::vector<std::pair<std::string, std::string>> words;
 
 	std::string line;
 	while (std::getline(file, line))
@@ -61,12 +59,12 @@ std::deque<std::pair<std::string, std::string>> Loader::LoadData() const
 	return words;
 }
 
-void Loader::SaveData(std::deque<std::pair<std::string, std::string>>& words) const
+void SaveData(const std::string& filename, std::vector<Translations> words)
 {
-	std::ofstream file(m_filename, std::ios::trunc);
+	std::ofstream file(filename, std::ios::trunc);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("Cannot open file for saving: " + m_filename);
+		throw std::runtime_error("Cannot open file for saving: " + filename);
 	}
 
 	for (const auto& [word, translation] : words)
@@ -74,3 +72,4 @@ void Loader::SaveData(std::deque<std::pair<std::string, std::string>>& words) co
 		file << word << " " << translation << std::endl;
 	}
 }
+} // namespace Loader

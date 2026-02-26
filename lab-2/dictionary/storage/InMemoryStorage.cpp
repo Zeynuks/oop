@@ -21,9 +21,9 @@ Entry* InMemoryStorage::Get(const std::string& word) const
 
 	return it->second;
 }
-void InMemoryStorage::Load(const std::deque<Translations>& dtos)
+void InMemoryStorage::Load(const std::vector<Translations>& translations)
 {
-	for (const auto& [word, translation] : dtos)
+	for (const auto& [word, translation] : translations)
 	{
 		auto wordEntry = Get(word);
 		if (!wordEntry)
@@ -42,9 +42,9 @@ void InMemoryStorage::Load(const std::deque<Translations>& dtos)
 	}
 }
 
-std::deque<Translations> InMemoryStorage::Upload() const
+std::vector<Translations> InMemoryStorage::Upload() const
 {
-	std::deque<Translations> dtos;
+	std::vector<Translations> translations;
 
 	for (const auto& entry : m_entries)
 	{
@@ -52,10 +52,10 @@ std::deque<Translations> InMemoryStorage::Upload() const
 		{
 			if (entry->word < translation->word)
 			{
-				dtos.emplace_back(entry->word, translation->word);
+				translations.emplace_back(entry->word, translation->word);
 			}
 		}
 	}
 
-	return dtos;
+	return translations;
 }

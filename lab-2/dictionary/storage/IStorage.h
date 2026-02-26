@@ -1,8 +1,8 @@
 #pragma once
 #include "../core/Entry.h"
 
-#include <deque>
 #include <string>
+#include <vector>
 
 using Translations = std::pair<std::string, std::string>;
 
@@ -13,6 +13,6 @@ public:
 
 	virtual Entry* Add(const std::string& word) = 0;
 	[[nodiscard]] virtual Entry* Get(const std::string& word) const = 0;
-	virtual void Load(const std::deque<Translations>& dtos) = 0;
-	virtual std::deque<Translations> Upload() const = 0;
+	virtual void Load(const std::vector<Translations>& dtos) = 0;
+	virtual std::vector<Translations> Upload() const = 0;
 };
