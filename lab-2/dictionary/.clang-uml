@@ -1,0 +1,16 @@
+compilation_database_dir: ./build
+output_directory: ./diagrams
+
+diagrams:
+  class_calc:
+    type: class
+    glob:
+      - "./commands/*.cpp"
+      - "./commands/*.hpp"
+      - "./core/*.cpp"
+      - "./core/*.hpp"
+      - "./*.cpp"
+      - "./*.hpp"
+    exclude:
+      namespaces:
+        - std
