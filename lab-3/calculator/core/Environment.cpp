@@ -76,30 +76,46 @@ void Environment::FillEvaluationCache(const std::string& rootId)
 		}
 
 		const auto& expr = it->second;
-		auto operands = expr->GetOperands();
-		bool ready = true;
 
-		for (const auto& operation : operands)
+		if (!TryExpandDependencies(stack, expr))
 		{
-			if (IsFunction(operation) && !m_cache.contains(operation))
-			{
-				stack.push_back(operation);
-				ready = false;
-			}
+			continue;
 		}
 
-		if (ready)
-		{
-			std::vector<double> vals;
-			for (const auto& operation : operands)
-			{
-				vals.push_back(GetValue(operation));
-			}
+		EvaluateAndStore(curr, expr);
+		stack.pop_back();
+	}
+}
 
-			m_cache[curr] = expr->Calculate(vals);
-			stack.pop_back();
+bool Environment::TryExpandDependencies(std::vector<std::string>& stack, const std::shared_ptr<IExpression>& expr) const
+{
+	const auto operands = expr->GetOperands();
+	bool allReady = true;
+
+	for (const auto& operation : operands)
+	{
+		if (IsFunction(operation) && !m_cache.contains(operation))
+		{
+			stack.push_back(operation);
+			allReady = false;
 		}
 	}
+
+	return allReady;
+}
+
+void Environment::EvaluateAndStore(const std::string& id, const std::shared_ptr<IExpression>& expr)
+{
+	const auto operands = expr->GetOperands();
+	std::vector<double> vals;
+	vals.reserve(operands.size());
+
+	for (const auto& operation : operands)
+	{
+		vals.push_back(GetValue(operation));
+	}
+
+	m_cache[id] = expr->Calculate(vals);
 }
 
 std::unordered_map<std::string, double> Environment::GetAllVariables() const

@@ -87,14 +87,9 @@ public:
 	std::unordered_map<std::string, std::shared_ptr<IExpression>> GetAllFunctions() const;
 
 private:
-	/**
-	 * @brief Рекурсивно вычисляет значение функции и заполняет кеш.
-	 *
-	 * Используется для предотвращения повторных вычислений и обнаружения циклических зависимостей.
-	 *
-	 * @param rootId Имя функции для вычисления
-	 */
 	void FillEvaluationCache(const std::string& rootId);
+	bool TryExpandDependencies(std::vector<std::string>& stack, const std::shared_ptr<IExpression>& expr) const;
+	void EvaluateAndStore(const std::string& id, const std::shared_ptr<IExpression>& expr);
 
 	std::unordered_map<std::string, double> m_variables; ///< Переменные и их значения
 	std::unordered_map<std::string, std::shared_ptr<IExpression>> m_functions; ///< Функции и их выражения
