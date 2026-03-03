@@ -5,6 +5,8 @@
 #include "Liza.hpp"
 #include "Random.hpp"
 
+#include <iostream>
+
 Chester::Chester(const ActorId id, Bank& bank, const ActorId homerId, const ActorId apuId)
 	: BaseActor(id, "Chester", bank)
 	, m_homerId(homerId)
@@ -24,8 +26,10 @@ void Chester::Tick(EconomyContext& context)
 		IMoneyStorage& homerBankAccount = homer.StealMoney();
 
 		ReceiveBankTransfer(homerBankAccount, RandomMoney(100, 150));
+		std::cout << GetName() << ": " << "Steal money from Homer" << std::endl;
 
 		IActor& apu = context.GetActor(m_apuId);
 		apu.ReceiveCash(account, 100);
+		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}
 }
