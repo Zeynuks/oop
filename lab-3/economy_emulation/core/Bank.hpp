@@ -16,6 +16,7 @@ public:
 	[[nodiscard]] IMoneyStorage& OpenAccount();
 	[[nodiscard]] IMoneyStorage& OpenAccount(Money amount);
 	[[nodiscard]] Money CloseAccount(IMoneyStorage& account);
+
 private:
 	std::list<std::unique_ptr<BankAccount>> m_accounts;
 };

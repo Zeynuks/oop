@@ -24,14 +24,16 @@ void Weylon::Tick(EconomyContext& context)
 
 		apu.ReceiveBankTransfer(m_wallet, 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
-	} else if (m_bankAccount)
+	}
+	else if (m_bankAccount)
 	{
 		IMoneyStorage& account = GetBankAccount();
 
 		IActor& apu = context.GetActor(m_apuId);
 		apu.ReceiveBankTransfer(account, 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
-	} else
+	}
+	else
 	{
 		OpenBankAccount();
 		IMoneyStorage& account = GetBankAccount();
