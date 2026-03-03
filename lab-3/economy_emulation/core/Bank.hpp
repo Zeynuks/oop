@@ -2,8 +2,8 @@
 
 #include "BankAccount.hpp"
 
+#include <list>
 #include <memory>
-#include <vector>
 
 class Bank
 {
@@ -17,5 +17,5 @@ public:
 	[[nodiscard]] IMoneyStorage& OpenAccount(Money amount);
 	[[nodiscard]] Money CloseAccount(IMoneyStorage& account);
 private:
-	std::vector<std::unique_ptr<BankAccount>> m_accounts;
+	std::list<std::unique_ptr<BankAccount>> m_accounts;
 };

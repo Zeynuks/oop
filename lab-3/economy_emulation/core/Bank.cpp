@@ -16,7 +16,6 @@ IMoneyStorage& Bank::OpenAccount(Money amount)
 	return *m_accounts.back();
 }
 
-
 Money Bank::CloseAccount(IMoneyStorage& account)
 {
 	const auto it = std::ranges::find_if(m_accounts,
@@ -24,11 +23,12 @@ Money Bank::CloseAccount(IMoneyStorage& account)
 			return ptr.get() == &account;
 		});
 
-	if (it == m_accounts.end()) {
+	if (it == m_accounts.end())
+	{
 		return 0;
 	}
 
-	const Money balance = it->get()->GetBalance();
+	const Money balance = (*it)->GetBalance();
 	m_accounts.erase(it);
 
 	return balance;

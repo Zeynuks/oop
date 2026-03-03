@@ -15,7 +15,7 @@ void MoneyTransfer::To(IMoneyStorage& to)
 		throw std::logic_error("Transfer already committed");
 	}
 
-	to.Deposit(std::move(m_amount));
+	to.Deposit(m_amount);
 	m_committed = true;
 }
 
@@ -23,6 +23,6 @@ MoneyTransfer::~MoneyTransfer()
 {
 	if (!m_committed)
 	{
-		m_from.Deposit(std::move(m_amount));
+		m_from.Deposit(m_amount);
 	}
 }

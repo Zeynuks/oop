@@ -9,8 +9,7 @@ Marge::Marge(const ActorId id, Bank& bank, const ActorId apuId)
 	: BaseActor(id, "Marge", bank)
 	, m_apuId(apuId)
 {
-	IMoneyStorage& account = m_bank.OpenAccount();
-	m_bankAccount = std::ref(account);
+	BaseActor::OpenBankAccount();
 }
 
 void Marge::Tick(EconomyContext& context)

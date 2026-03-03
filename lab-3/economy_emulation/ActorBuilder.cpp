@@ -26,7 +26,7 @@ std::unique_ptr<Bart> ActorBuilder::BuildBart()
 
 std::unique_ptr<Berns> ActorBuilder::BuildBerns()
 {
-	return std::make_unique<Berns>(m_bernsId, m_bank, m_homerId);
+	return std::make_unique<Berns>(m_bernsId, m_bank, m_homerId, m_weylonId);
 }
 
 std::unique_ptr<Chester> ActorBuilder::BuildChester()

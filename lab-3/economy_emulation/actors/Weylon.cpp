@@ -10,15 +10,14 @@ Weylon::Weylon(const ActorId id, Bank& bank, const ActorId apuId)
 	: BaseActor(id, "Waylon", bank)
 	, m_apuId(apuId)
 {
-	IMoneyStorage& account = m_bank.OpenAccount();
-	m_bankAccount = std::ref(account);
+	BaseActor::OpenBankAccount();
 }
 
 void Weylon::Tick(EconomyContext& context)
 {
 	if (RandomBool() || m_bankAccount)
 	{
-		ReceiveCash(m_wallet, m_bank.CloseAccount(GetBankAccount()));
+		CloseBankAccount();
 		std::cout << GetName() << ": " << "Close account" << std::endl;
 
 		IActor& apu = context.GetActor(m_apuId);
@@ -34,8 +33,8 @@ void Weylon::Tick(EconomyContext& context)
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	} else
 	{
-		IMoneyStorage& account = m_bank.OpenAccount();
-		m_bankAccount = std::ref(account);
+		OpenBankAccount();
+		IMoneyStorage& account = GetBankAccount();
 
 		IActor& apu = context.GetActor(m_apuId);
 		apu.ReceiveBankTransfer(account, 75);

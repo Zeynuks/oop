@@ -30,6 +30,26 @@ IMoneyStorage& BaseActor::GetBankAccount()
 	return m_bankAccount->get();
 }
 
+void BaseActor::OpenBankAccount()
+{
+	IMoneyStorage& account = m_bank.OpenAccount();
+	m_bankAccount = std::ref(account);
+}
+
+void BaseActor::OpenBankAccount(const Money amount)
+{
+	IMoneyStorage& account = m_bank.OpenAccount(amount);
+	m_bankAccount = std::ref(account);
+}
+
+void BaseActor::CloseBankAccount()
+{
+	IMoneyStorage& account = m_bank.OpenAccount();
+	const Money amount = m_bank.CloseAccount(account);
+	ReceiveCash(m_wallet, amount);
+	m_bankAccount = std::nullopt;
+}
+
 void BaseActor::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer transfer(from, amount);

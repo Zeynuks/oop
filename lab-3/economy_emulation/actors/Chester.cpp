@@ -12,8 +12,7 @@ Chester::Chester(const ActorId id, Bank& bank, const ActorId homerId, const Acto
 	, m_homerId(homerId)
 	, m_apuId(apuId)
 {
-	IMoneyStorage& account = m_bank.OpenAccount();
-	m_bankAccount = std::ref(account);
+	BaseActor::OpenBankAccount();
 }
 
 void Chester::Tick(EconomyContext& context)

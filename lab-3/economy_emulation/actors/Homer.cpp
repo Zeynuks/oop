@@ -14,8 +14,7 @@ Homer::Homer(const ActorId id, Bank& bank, const ActorId margeId, const ActorId 
 	, m_lizaId(lisaId)
 	, m_chesterId(chesterId)
 {
-	IMoneyStorage& account = m_bank.OpenAccount();
-	m_bankAccount = std::ref(account);
+	BaseActor::OpenBankAccount();
 }
 
 void Homer::Tick(EconomyContext& context)

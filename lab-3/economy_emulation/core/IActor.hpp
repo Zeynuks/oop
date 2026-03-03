@@ -15,6 +15,9 @@ public:
 	virtual ActorId GetId() const = 0;
 	virtual std::string GetName() const = 0;
 	virtual IMoneyStorage& GetBankAccount() = 0;
+	virtual void OpenBankAccount() = 0;
+	virtual void OpenBankAccount(Money amount) = 0;
+	virtual void CloseBankAccount() = 0;
 	virtual void ReceiveBankTransfer(IMoneyStorage& from, Money amount) = 0;
 	virtual void ReceiveCash(IMoneyStorage& from, Money amount) = 0;
 	virtual IMoneyStorage& StealMoney() = 0;

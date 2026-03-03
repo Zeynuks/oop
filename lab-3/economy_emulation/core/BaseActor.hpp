@@ -29,4 +29,7 @@ protected:
 	std::optional<std::reference_wrapper<IMoneyStorage>> m_bankAccount;
 
 	IMoneyStorage& GetBankAccount() override;
+	void OpenBankAccount() override;
+	void OpenBankAccount(Money amount) override;
+	void CloseBankAccount() override;
 };
