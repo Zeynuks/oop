@@ -6,9 +6,10 @@
 
 BaseMoneyStorage::BaseMoneyStorage(const Money initialAmount)
 	: m_id(m_nextId++)
-	, m_balance(initialAmount)
 {
+	BaseMoneyStorage::Deposit(initialAmount);
 }
+
 StorageId BaseMoneyStorage::GetId() const
 {
 	return m_id;
@@ -21,14 +22,14 @@ Money BaseMoneyStorage::GetBalance() const
 
 void BaseMoneyStorage::Deposit(const Money amount)
 {
-	if (amount <= 0)
+	if (amount < 0)
 	{
 		throw WalletError("Withdrawal amount must be positive.");
 	}
 
 	if (std::numeric_limits<Money>::max() - m_balance < amount)
 	{
-		throw WalletError("Overflow error: balance limit exceeded.");
+		throw WalletError("Balance limit exceeded.");
 	}
 
 	m_balance += amount;
@@ -36,14 +37,14 @@ void BaseMoneyStorage::Deposit(const Money amount)
 
 Money BaseMoneyStorage::Withdraw(const Money amount)
 {
-	if (amount <= 0)
+	if (amount < 0)
 	{
 		throw WalletError("Withdrawal amount must be positive.");
 	}
 
 	if (m_balance < amount)
 	{
-		throw WalletError("Insufficient funds: balance cannot be negative.");
+		throw WalletError("Not enough money.");
 	}
 
 	m_balance -= amount;
