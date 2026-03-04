@@ -4,7 +4,7 @@
 #include "IActor.hpp"
 #include "IFinancialActor.hpp"
 #include "ISimulatable.hpp"
-#include "Wallet.hpp"
+#include "money_storage/Wallet.hpp"
 
 #include <functional>
 #include <optional>

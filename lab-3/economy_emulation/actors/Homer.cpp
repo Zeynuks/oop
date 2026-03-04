@@ -1,7 +1,6 @@
 #include "Homer.hpp"
 
 #include "EconomyContext.hpp"
-#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>

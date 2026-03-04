@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BankAccount.hpp"
+#include "money_storage/BankAccount.hpp"
 
 #include <list>
 #include <memory>

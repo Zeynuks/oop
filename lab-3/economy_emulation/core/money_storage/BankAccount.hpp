@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseMoneyStorage.hpp"
+#include "../BaseMoneyStorage.hpp"
 
 class BankAccount : public BaseMoneyStorage
 {

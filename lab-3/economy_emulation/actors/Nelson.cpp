@@ -1,8 +1,6 @@
-#include "Nelson.hpp"
-
 #include "EconomyContext.hpp"
 #include "IStealable.hpp"
-#include "MoneyTransfer.hpp"
+#include "Nelson.hpp"
 #include "Random.hpp"
 
 #include <iostream>

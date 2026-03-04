@@ -3,7 +3,6 @@
 #include "EconomyContext.hpp"
 #include "IStealable.hpp"
 #include "Liza.hpp"
-#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>

@@ -1,7 +1,6 @@
 #include "Berns.hpp"
 
 #include "EconomyContext.hpp"
-#include "MoneyTransfer.hpp"
 
 #include <iostream>
 

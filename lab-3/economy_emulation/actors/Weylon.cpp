@@ -1,8 +1,6 @@
-#include "Weylon.hpp"
-
 #include "EconomyContext.hpp"
-#include "MoneyTransfer.hpp"
 #include "Random.hpp"
+#include "Weylon.hpp"
 
 #include <iostream>
 

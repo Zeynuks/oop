@@ -1,7 +1,7 @@
-#include "IMoneyStorage.hpp"
-#include "MoneyTransfer.hpp"
 #include "Person.hpp"
 #include "errors/ActorError.hpp"
+#include "money_storage/IMoneyStorage.hpp"
+#include "money_storage/MoneyTransfer.hpp"
 
 Person::Person(const ActorId id, const std::string& name, Bank& bank, const Money initialWalletCash)
 	: m_id(id)
