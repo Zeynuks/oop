@@ -2,16 +2,11 @@
 
 #include "money_storage/IMoneyStorage.hpp"
 
-class IFinancialActor
+class IMoneyReceiver
 {
 public:
-	virtual ~IFinancialActor() = default;
+	virtual ~IMoneyReceiver() = default;
 
 	virtual void ReceiveBankTransfer(IMoneyStorage& from, Money amount) = 0;
 	virtual void ReceiveCash(IMoneyStorage& from, Money amount) = 0;
-
-	virtual bool HasBankAccount() = 0;
-
-	virtual void OpenBankAccount(Money initialAmount = 0) = 0;
-	virtual void CloseBankAccount() = 0;
 };

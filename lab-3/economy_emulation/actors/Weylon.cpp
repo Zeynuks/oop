@@ -18,7 +18,7 @@ void Weylon::Tick(EconomyContext& context)
 		CloseBankAccount();
 		std::cout << GetName() << ": " << "Close account" << std::endl;
 
-		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 		apu.ReceiveBankTransfer(m_wallet, 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}
@@ -26,7 +26,7 @@ void Weylon::Tick(EconomyContext& context)
 	{
 		IMoneyStorage& account = GetBankAccount();
 
-		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 		apu.ReceiveBankTransfer(account, 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}
@@ -35,7 +35,7 @@ void Weylon::Tick(EconomyContext& context)
 		OpenBankAccount();
 		IMoneyStorage& account = GetBankAccount();
 
-		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 		apu.ReceiveBankTransfer(account, 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}

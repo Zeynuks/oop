@@ -11,7 +11,7 @@ Liza::Liza(const ActorId id, Bank& bank, const ActorId apuId)
 
 void Liza::Tick(EconomyContext& context)
 {
-	auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+	auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 	apu.ReceiveCash(m_wallet, 35);
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }

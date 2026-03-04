@@ -2,7 +2,8 @@
 
 #include "Bank.hpp"
 #include "IActor.hpp"
-#include "IFinancialActor.hpp"
+#include "IBankAccountHolder.hpp"
+#include "IMoneyReceiver.hpp"
 #include "ISimulatable.hpp"
 #include "money_storage/Wallet.hpp"
 
@@ -11,7 +12,8 @@
 
 class Person : public IActor
 	, public ISimulatable
-	, public IFinancialActor
+	, public IMoneyReceiver
+	, IBankAccountHolder
 {
 public:
 	explicit Person(ActorId id, const std::string& name, Bank& bank, Money initialWalletCash = 0);
@@ -20,9 +22,12 @@ public:
 
 	void Tick(EconomyContext& context) override = 0;
 
-	bool HasBankAccount() override;
 	void ReceiveBankTransfer(IMoneyStorage& from, Money amount) override;
 	void ReceiveCash(IMoneyStorage& from, Money amount) override;
+
+	IMoneyStorage& GetBankAccount() const override;
+	void OpenBankAccount(Money initialAmount = 0) override;
+	void CloseBankAccount() override;
 
 private:
 	ActorId m_id;
@@ -32,8 +37,4 @@ private:
 protected:
 	Wallet m_wallet;
 	std::optional<std::reference_wrapper<IMoneyStorage>> m_bankAccount;
-
-	IMoneyStorage& GetBankAccount() const;
-	void OpenBankAccount(Money initialAmount = 0) override;
-	void CloseBankAccount() override;
 };

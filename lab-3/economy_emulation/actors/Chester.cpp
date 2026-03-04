@@ -26,7 +26,7 @@ void Chester::Tick(EconomyContext& context)
 		ReceiveBankTransfer(homerBankAccount, RandomMoney(100, 150));
 		std::cout << GetName() << ": " << "Steal money from Homer" << std::endl;
 
-		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 		apu.ReceiveCash(account, 100);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}

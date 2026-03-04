@@ -53,10 +53,6 @@ void Person::CloseBankAccount()
 	m_bankAccount = std::nullopt;
 }
 
-bool Person::HasBankAccount()
-{
-	return m_bankAccount.has_value();
-}
 void Person::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer transfer(from, amount);

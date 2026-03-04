@@ -13,7 +13,7 @@ Apu::Apu(const ActorId id, Bank& bank, const ActorId bernsId)
 void Apu::Tick(EconomyContext& context)
 {
 	IMoneyStorage& account = GetBankAccount();
-	auto& berns = context.GetActor<IFinancialActor>(m_bernsId);
+	auto& berns = context.GetActor<IMoneyReceiver>(m_bernsId);
 
 	ReceiveBankTransfer(account, m_wallet.GetBalance());
 	std::cout << GetName() << ": " << "Transfer money on BankAccount" << std::endl;

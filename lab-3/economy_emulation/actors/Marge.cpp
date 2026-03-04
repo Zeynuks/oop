@@ -14,7 +14,7 @@ void Marge::Tick(EconomyContext& context)
 {
 	IMoneyStorage& account = GetBankAccount();
 
-	auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+	auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 	apu.ReceiveBankTransfer(account, 75);
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }

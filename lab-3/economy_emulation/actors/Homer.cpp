@@ -20,19 +20,19 @@ void Homer::Tick(EconomyContext& context)
 {
 	IMoneyStorage& account = GetBankAccount();
 
-	auto& marge = context.GetActor<IFinancialActor>(m_margeId);
+	auto& marge = context.GetActor<IMoneyReceiver>(m_margeId);
 	marge.ReceiveBankTransfer(account, RandomMoney(50, 100));
 	std::cout << GetName() << ": " << "Send money to Marge" << std::endl;
 
-	auto& berns = context.GetActor<IFinancialActor>(m_bernsId);
+	auto& berns = context.GetActor<IMoneyReceiver>(m_bernsId);
 	berns.ReceiveBankTransfer(account, RandomMoney(20, 75));
 	std::cout << GetName() << ": " << "Paid for eclecticism" << std::endl;
 
-	auto& liza = context.GetActor<IFinancialActor>(m_lizaId);
+	auto& liza = context.GetActor<IMoneyReceiver>(m_lizaId);
 	liza.ReceiveCash(account, RandomMoney(0, 50));
 	std::cout << GetName() << ": " << "Get money to Liza" << std::endl;
 
-	auto& bart = context.GetActor<IFinancialActor>(m_bartId);
+	auto& bart = context.GetActor<IMoneyReceiver>(m_bartId);
 	bart.ReceiveCash(account, RandomMoney(0, 50));
 	std::cout << GetName() << ": " << "Get money to Bart" << std::endl;
 }

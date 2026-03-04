@@ -22,7 +22,7 @@ void Nelson::Tick(EconomyContext& context)
 		ReceiveCash(bartWallet, RandomMoney(20, 50));
 		std::cout << GetName() << ": " << "Steal money from Bart" << std::endl;
 
-		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
+		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
 		apu.ReceiveCash(m_wallet, 30);
 		std::cout << GetName() << ": " << "Buy cigarettes" << std::endl;
 	}
