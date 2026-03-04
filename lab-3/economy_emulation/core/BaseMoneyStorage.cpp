@@ -1,13 +1,17 @@
 #include "BaseMoneyStorage.hpp"
-
-#include "Wallet.hpp"
 #include "errors/WalletError.hpp"
 
+#include <iostream>
 #include <limits>
 
 BaseMoneyStorage::BaseMoneyStorage(const Money initialAmount)
-	: m_balance(initialAmount)
+	: m_id(m_nextId++)
+	, m_balance(initialAmount)
 {
+}
+StorageId BaseMoneyStorage::GetId() const
+{
+	return m_id;
 }
 
 Money BaseMoneyStorage::GetBalance() const

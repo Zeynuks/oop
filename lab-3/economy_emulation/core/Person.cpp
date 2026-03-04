@@ -1,9 +1,9 @@
-#include "BaseActor.hpp"
 #include "IMoneyStorage.hpp"
 #include "MoneyTransfer.hpp"
+#include "Person.hpp"
 #include "errors/ActorError.hpp"
 
-BaseActor::BaseActor(const ActorId id, const std::string& name, Bank& bank, const Money initialWalletCash)
+Person::Person(const ActorId id, const std::string& name, Bank& bank, const Money initialWalletCash)
 	: m_id(id)
 	, m_name(name)
 	, m_bank(bank)
@@ -11,17 +11,17 @@ BaseActor::BaseActor(const ActorId id, const std::string& name, Bank& bank, cons
 {
 }
 
-ActorId BaseActor::GetId() const
+ActorId Person::GetId() const
 {
 	return m_id;
 }
 
-std::string BaseActor::GetName() const
+std::string Person::GetName() const
 {
 	return m_name;
 }
 
-IMoneyStorage& BaseActor::GetBankAccount()
+IMoneyStorage& Person::GetBankAccount() const
 {
 	if (!m_bankAccount)
 	{
@@ -31,7 +31,7 @@ IMoneyStorage& BaseActor::GetBankAccount()
 	return m_bankAccount->get();
 }
 
-void BaseActor::OpenBankAccount(const Money initialAmount)
+void Person::OpenBankAccount(const Money initialAmount)
 {
 	if (!m_bankAccount)
 	{
@@ -45,7 +45,7 @@ void BaseActor::OpenBankAccount(const Money initialAmount)
 	}
 }
 
-void BaseActor::CloseBankAccount()
+void Person::CloseBankAccount()
 {
 	IMoneyStorage& account = m_bank.OpenAccount();
 	const Money amount = m_bank.CloseAccount(account);
@@ -53,14 +53,18 @@ void BaseActor::CloseBankAccount()
 	m_bankAccount = std::nullopt;
 }
 
-void BaseActor::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
+bool Person::HasBankAccount()
+{
+	return m_bankAccount.has_value();
+}
+void Person::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer transfer(from, amount);
 
 	IMoneyStorage& account = GetBankAccount();
 	transfer.To(account);
 }
-void BaseActor::ReceiveCash(IMoneyStorage& from, const Money amount)
+void Person::ReceiveCash(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer(from, amount).To(m_wallet);
 }

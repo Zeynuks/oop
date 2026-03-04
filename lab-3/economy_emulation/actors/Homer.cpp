@@ -7,14 +7,14 @@
 #include <iostream>
 
 Homer::Homer(const ActorId id, Bank& bank, const ActorId margeId, const ActorId bernsId, const ActorId bartId, const ActorId lisaId, const ActorId chesterId)
-	: BaseActor(id, "Homer", bank)
+	: Person(id, "Homer", bank)
 	, m_margeId(margeId)
 	, m_bernsId(bernsId)
 	, m_bartId(bartId)
 	, m_lizaId(lisaId)
 	, m_chesterId(chesterId)
 {
-	BaseActor::OpenBankAccount();
+	Person::OpenBankAccount();
 }
 
 void Homer::Tick(EconomyContext& context)

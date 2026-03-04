@@ -7,10 +7,10 @@
 #include <iostream>
 
 Weylon::Weylon(const ActorId id, Bank& bank, const ActorId apuId)
-	: BaseActor(id, "Waylon", bank)
+	: Person(id, "Weylon", bank)
 	, m_apuId(apuId)
 {
-	BaseActor::OpenBankAccount();
+	Person::OpenBankAccount();
 }
 
 void Weylon::Tick(EconomyContext& context)

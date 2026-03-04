@@ -9,27 +9,31 @@
 #include <functional>
 #include <optional>
 
-class BaseActor : public IActor
+class Person : public IActor
 	, public ISimulatable
 	, public IFinancialActor
 {
 public:
-	explicit BaseActor(ActorId id, const std::string& name, Bank& bank, Money initialWalletCash = 0);
+	explicit Person(ActorId id, const std::string& name, Bank& bank, Money initialWalletCash = 0);
 	ActorId GetId() const override;
 	std::string GetName() const override;
+
+	void Tick(EconomyContext& context) override = 0;
+
+	bool HasBankAccount() override;
 	void ReceiveBankTransfer(IMoneyStorage& from, Money amount) override;
 	void ReceiveCash(IMoneyStorage& from, Money amount) override;
 
 private:
 	ActorId m_id;
 	std::string m_name;
+	Bank& m_bank;
 
 protected:
-	Bank& m_bank;
 	Wallet m_wallet;
 	std::optional<std::reference_wrapper<IMoneyStorage>> m_bankAccount;
 
-	IMoneyStorage& GetBankAccount() override;
-	void OpenBankAccount(Money initialAmount = 0) override = 0;
-	void CloseBankAccount() override = 0;
+	IMoneyStorage& GetBankAccount() const;
+	void OpenBankAccount(Money initialAmount = 0) override;
+	void CloseBankAccount() override;
 };

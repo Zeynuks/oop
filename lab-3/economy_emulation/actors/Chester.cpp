@@ -9,11 +9,11 @@
 #include <iostream>
 
 Chester::Chester(const ActorId id, Bank& bank, const ActorId homerId, const ActorId apuId)
-	: BaseActor(id, "Chester", bank)
+	: Person(id, "Chester", bank)
 	, m_homerId(homerId)
 	, m_apuId(apuId)
 {
-	BaseActor::OpenBankAccount();
+	Person::OpenBankAccount();
 }
 
 void Chester::Tick(EconomyContext& context)

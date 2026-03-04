@@ -1,13 +1,12 @@
 #include "Bart.hpp"
 
 #include "EconomyContext.hpp"
-#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>
 
 Bart::Bart(const ActorId id, Bank& bank, const ActorId apuId)
-	: BaseActor(id, "Bart", bank)
+	: Person(id, "Bart", bank)
 	, m_apuId(apuId)
 {
 }
@@ -19,7 +18,7 @@ void Bart::Tick(EconomyContext& context)
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }
 
-void Bart::StealMoney(IFinancialActor& stealer, const Money amount)
+IMoneyStorage& Bart::GetStorageToSteal()
 {
-	stealer.ReceiveCash(m_wallet, amount);
+	return m_wallet;
 }

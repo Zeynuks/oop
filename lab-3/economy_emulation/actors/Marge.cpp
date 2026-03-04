@@ -6,10 +6,10 @@
 #include <iostream>
 
 Marge::Marge(const ActorId id, Bank& bank, const ActorId apuId)
-	: BaseActor(id, "Marge", bank)
+	: Person(id, "Marge", bank)
 	, m_apuId(apuId)
 {
-	BaseActor::OpenBankAccount();
+	Person::OpenBankAccount();
 }
 
 void Marge::Tick(EconomyContext& context)

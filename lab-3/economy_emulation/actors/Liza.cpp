@@ -5,7 +5,7 @@
 #include <iostream>
 
 Liza::Liza(const ActorId id, Bank& bank, const ActorId apuId)
-	: BaseActor(id, "Liza", bank)
+	: Person(id, "Liza", bank)
 	, m_apuId(apuId)
 {
 }

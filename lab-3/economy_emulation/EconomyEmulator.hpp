@@ -1,4 +1,6 @@
 #pragma once
+
+#include "core/Bank.hpp"
 #include "core/EconomyContext.hpp"
 
 class EconomyEmulator
@@ -11,5 +13,5 @@ private:
 	Bank m_bank;
 	EconomyContext m_context;
 
-	void ActorIteration(IActor& actor);
+	void ActorIteration(const IActor& actor);
 };

@@ -8,7 +8,7 @@
 #include <iostream>
 
 Nelson::Nelson(const ActorId id, Bank& bank, const ActorId bartId, const ActorId apuId)
-	: BaseActor(id, "Nelson", bank)
+	: Person(id, "Nelson", bank)
 	, m_bartId(bartId)
 	, m_apuId(apuId)
 {

@@ -6,11 +6,11 @@
 #include <iostream>
 
 Berns::Berns(const ActorId id, Bank& bank, const ActorId homerId, const ActorId weylonId)
-	: BaseActor(id, "Berns", bank)
+	: Person(id, "Berns", bank, 2500)
 	, m_homerId(homerId)
 	, m_weylonId(weylonId)
 {
-	BaseActor::OpenBankAccount(2000);
+	Person::OpenBankAccount(2000);
 }
 
 void Berns::Tick(EconomyContext& context)

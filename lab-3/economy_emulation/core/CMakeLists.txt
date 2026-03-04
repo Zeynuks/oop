@@ -2,8 +2,8 @@ add_library(economy_core_lib
         ./Bank.hpp
         ./Bank.cpp
         ./BankAccount.hpp
-        ./BaseActor.cpp
-        ./BaseActor.hpp
+        Person.cpp
+        Person.hpp
         ./BaseMoneyStorage.cpp
         ./BaseMoneyStorage.hpp
         ./EconomyContext.cpp

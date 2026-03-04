@@ -1,7 +1,8 @@
 #pragma once
-#include "../core/BaseActor.hpp"
 
-class Weylon : public BaseActor
+#include "../core/Person.hpp"
+
+class Weylon : public Person
 {
 public:
 	explicit Weylon(ActorId id, Bank& bank, ActorId apuId);

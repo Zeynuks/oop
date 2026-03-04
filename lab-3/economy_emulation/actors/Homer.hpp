@@ -1,10 +1,9 @@
 #pragma once
 
-#include "BaseActor.hpp"
-#include "EconomyContext.hpp"
-#include "IStealable.hpp"
+#include "../core/IStealable.hpp"
+#include "../core/Person.hpp"
 
-class Homer : public BaseActor
+class Homer : public Person
 	, public IStealable
 {
 public:

@@ -20,6 +20,9 @@ add_library(economy_actors_lib
         ./Weylon.hpp
 )
 
-target_include_directories(economy_actors_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(economy_actors_lib PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
 
 target_link_libraries(economy_actors_lib PUBLIC economy_core_lib)

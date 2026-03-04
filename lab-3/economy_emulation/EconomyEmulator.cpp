@@ -23,8 +23,6 @@ void EconomyEmulator::Emulate(const int iterations)
 {
 	for (int i = 0; i < iterations; ++i)
 	{
-		auto actors = m_context.GetAllActors();
-
 		std::cout << "Iteration: " << i + 1 << std::endl;
 
 		for (auto actor : m_context.GetAllActors())
@@ -34,11 +32,12 @@ void EconomyEmulator::Emulate(const int iterations)
 	}
 }
 
-void EconomyEmulator::ActorIteration(IActor& actor)
+void EconomyEmulator::ActorIteration(const IActor& actor)
 {
 	try
 	{
-		actor.Tick(m_context);
+		auto& simulatable = m_context.GetActor<ISimulatable>(actor.GetId());
+		simulatable.Tick(m_context);
 	}
 	catch (const std::runtime_error& e)
 	{

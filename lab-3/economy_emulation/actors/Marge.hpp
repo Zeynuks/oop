@@ -1,7 +1,8 @@
 #pragma once
-#include "BaseActor.hpp"
 
-class Marge : public BaseActor
+#include "../core/Person.hpp"
+
+class Marge : public Person
 {
 public:
 	explicit Marge(ActorId id, Bank& bank, ActorId apuId);

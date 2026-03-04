@@ -5,10 +5,10 @@
 #include <iostream>
 
 Apu::Apu(const ActorId id, Bank& bank, const ActorId bernsId)
-	: BaseActor(id, "Apu", bank)
+	: Person(id, "Apu", bank, 200)
 	, m_bernsId(bernsId)
 {
-	BaseActor::OpenBankAccount(200);
+	Person::OpenBankAccount(200);
 }
 
 void Apu::Tick(EconomyContext& context)

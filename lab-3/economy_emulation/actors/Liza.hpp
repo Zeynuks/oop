@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BaseActor.hpp"
+#include "../core/Person.hpp"
 
-class Liza : public BaseActor
+class Liza : public Person
 {
 public:
 	explicit Liza(ActorId id, Bank& bank, ActorId apuId);

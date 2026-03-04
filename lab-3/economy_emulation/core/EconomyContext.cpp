@@ -11,24 +11,9 @@ void EconomyContext::AddActor(std::unique_ptr<IActor> actor)
 	}
 }
 
-template <typename T>
-T& EconomyContext::GetActor(const ActorId id)
+std::vector<std::reference_wrapper<IActor>> EconomyContext::GetAllActors()
 {
-	if (const auto it = m_actors.find(id); it != m_actors.end())
-	{
-		if (auto* casted = dynamic_cast<T*>(it->second.get()))
-		{
-			return *casted;
-		}
-		throw std::runtime_error("Actor found, but requested interface is not supported.");
-	}
-
-	throw std::runtime_error("Actor with specified ID not found.");
-}
-
-std::list<std::reference_wrapper<IActor>> EconomyContext::GetAllActors()
-{
-	std::list<std::reference_wrapper<IActor>> result;
+	std::vector<std::reference_wrapper<IActor>> result;
 
 	for (auto& actor : m_actors | std::views::values)
 	{
