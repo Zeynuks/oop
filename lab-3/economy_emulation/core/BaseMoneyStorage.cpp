@@ -5,11 +5,6 @@
 
 #include <limits>
 
-BaseMoneyStorage::BaseMoneyStorage()
-	: m_balance(0)
-{
-}
-
 BaseMoneyStorage::BaseMoneyStorage(const Money initialAmount)
 	: m_balance(initialAmount)
 {

@@ -5,7 +5,6 @@
 class BaseMoneyStorage : public IMoneyStorage
 {
 public:
-	explicit BaseMoneyStorage();
 	explicit BaseMoneyStorage(Money initialAmount = 0);
 	Money GetBalance() const override;
 
