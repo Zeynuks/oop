@@ -33,7 +33,7 @@ IMoneyStorage& Person::GetBankAccount() const
 
 void Person::OpenBankAccount(const Money initialAmount)
 {
-	if (!m_bankAccount)
+	if (!m_bankAccount.has_value())
 	{
 		IMoneyStorage& account = m_bank.OpenAccount(initialAmount);
 		m_bankAccount = std::ref(account);
@@ -55,11 +55,11 @@ void Person::CloseBankAccount()
 
 void Person::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
 {
-	MoneyTransfer transfer(from, amount);
-
 	IMoneyStorage& account = GetBankAccount();
-	transfer.To(account);
+
+	MoneyTransfer(from, amount).To(account);
 }
+
 void Person::ReceiveCash(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer(from, amount).To(m_wallet);
