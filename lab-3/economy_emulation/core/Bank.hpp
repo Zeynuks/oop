@@ -2,21 +2,22 @@
 
 #include "money_storage/BankAccount.hpp"
 
-#include <list>
-#include <memory>
+#include <unordered_map>
+
+using AccountId = unsigned long long;
 
 class Bank
 {
 public:
-	explicit Bank();
+	explicit Bank(IMoneyStorage& bankStorage);
 
 	Bank(const Bank&) = delete;
 	Bank& operator=(const Bank&) = delete;
 
 	[[nodiscard]] IMoneyStorage& OpenAccount();
-	[[nodiscard]] IMoneyStorage& OpenAccount(Money amount);
-	[[nodiscard]] Money CloseAccount(IMoneyStorage& account);
+	void CloseAccount(const IMoneyStorage& account);
 
 private:
-	std::list<std::unique_ptr<BankAccount>> m_accounts;
+	IMoneyStorage& m_bankStorage;
+	std::unordered_map<AccountId, BankAccount> m_accounts;
 };

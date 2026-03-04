@@ -13,16 +13,16 @@ Weylon::Weylon(const ActorId id, Bank& bank, const ActorId apuId)
 
 void Weylon::Tick(EconomyContext& context)
 {
-	if (RandomBool() || m_bankAccount)
+	if (RandomBool() || GetBankAccount().GetId())
 	{
-		CloseBankAccount();
+		CloseBankAccount(GetWallet());
 		std::cout << GetName() << ": " << "Close account" << std::endl;
 
 		auto& apu = context.GetActor<IMoneyReceiver>(m_apuId);
-		apu.ReceiveBankTransfer(m_wallet, 75);
+		apu.ReceiveBankTransfer(GetWallet(), 75);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}
-	else if (m_bankAccount)
+	else if (GetBankAccount().GetId())
 	{
 		IMoneyStorage& account = GetBankAccount();
 

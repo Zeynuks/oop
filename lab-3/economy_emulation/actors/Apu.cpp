@@ -4,10 +4,10 @@
 #include <iostream>
 
 Apu::Apu(const ActorId id, Bank& bank, const ActorId bernsId)
-	: Person(id, "Apu", bank, 200)
+	: Person(id, "Apu", bank)
 	, m_bernsId(bernsId)
 {
-	Person::OpenBankAccount(200);
+	BaseBankAccountHolder::OpenBankAccount();
 }
 
 void Apu::Tick(EconomyContext& context)
@@ -15,7 +15,7 @@ void Apu::Tick(EconomyContext& context)
 	IMoneyStorage& account = GetBankAccount();
 	auto& berns = context.GetActor<IMoneyReceiver>(m_bernsId);
 
-	ReceiveBankTransfer(account, m_wallet.GetBalance());
+	ReceiveBankTransfer(account, GetWallet().GetBalance());
 	std::cout << GetName() << ": " << "Transfer money on BankAccount" << std::endl;
 
 	berns.ReceiveBankTransfer(account, 80);

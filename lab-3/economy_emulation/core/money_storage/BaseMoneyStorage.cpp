@@ -1,5 +1,5 @@
 #include "BaseMoneyStorage.hpp"
-#include "errors/WalletError.hpp"
+#include "errors/MoneyStorageError.hpp"
 
 #include <iostream>
 #include <limits>
@@ -24,12 +24,12 @@ void BaseMoneyStorage::Deposit(const Money amount)
 {
 	if (amount < 0)
 	{
-		throw WalletError("Withdrawal amount must be positive.");
+		throw MoneyStorageError("Withdrawal amount must be positive.");
 	}
 
 	if (std::numeric_limits<Money>::max() - m_balance < amount)
 	{
-		throw WalletError("Balance limit exceeded.");
+		throw MoneyStorageError("Balance limit exceeded.");
 	}
 
 	m_balance += amount;
@@ -39,12 +39,12 @@ Money BaseMoneyStorage::Withdraw(const Money amount)
 {
 	if (amount < 0)
 	{
-		throw WalletError("Withdrawal amount must be positive.");
+		throw MoneyStorageError("Withdrawal amount must be positive.");
 	}
 
 	if (m_balance < amount)
 	{
-		throw WalletError("Not enough money.");
+		throw MoneyStorageError("Not enough money.");
 	}
 
 	m_balance -= amount;

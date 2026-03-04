@@ -10,7 +10,8 @@ public:
 	void Emulate(int iterations);
 
 private:
-	Bank m_bank;
+	BankAccount m_bankAccount = BankAccount(20000);
+	Bank m_bank = Bank(m_bankAccount);
 	EconomyContext m_context;
 
 	void ActorIteration(const IActor& actor);

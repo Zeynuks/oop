@@ -6,7 +6,7 @@
 
 void EconomyEmulator::InitEmulator()
 {
-	ActorBuilder builder(m_bank);
+	ActorBuilder builder(m_bank, m_bankAccount);
 
 	m_context.AddActor(builder.BuildHomer());
 	m_context.AddActor(builder.BuildMarge());

@@ -15,7 +15,7 @@
 class ActorBuilder
 {
 public:
-	explicit ActorBuilder(Bank& bank);
+	explicit ActorBuilder(Bank& bank, BankAccount& account);
 
 	std::unique_ptr<Apu> BuildApu();
 	std::unique_ptr<Bart> BuildBart();
@@ -29,6 +29,7 @@ public:
 
 private:
 	Bank& m_bank;
+	BankAccount& m_account;
 
 	ActorId m_apuId;
 	ActorId m_bartId;
