@@ -1,7 +1,7 @@
 #include "Homer.hpp"
 
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>
@@ -21,22 +21,24 @@ void Homer::Tick(EconomyContext& context)
 {
 	IMoneyStorage& account = GetBankAccount();
 
-	IActor& marge = context.GetActor(m_margeId);
-	IActor& berns = context.GetActor(m_bernsId);
-	IActor& liza = context.GetActor(m_lizaId);
-	IActor& bart = context.GetActor(m_bartId);
-
+	auto& marge = context.GetActor<IFinancialActor>(m_margeId);
 	marge.ReceiveBankTransfer(account, RandomMoney(50, 100));
 	std::cout << GetName() << ": " << "Send money to Marge" << std::endl;
+
+	auto& berns = context.GetActor<IFinancialActor>(m_bernsId);
 	berns.ReceiveBankTransfer(account, RandomMoney(20, 75));
 	std::cout << GetName() << ": " << "Paid for eclecticism" << std::endl;
+
+	auto& liza = context.GetActor<IFinancialActor>(m_lizaId);
 	liza.ReceiveCash(account, RandomMoney(0, 50));
 	std::cout << GetName() << ": " << "Get money to Liza" << std::endl;
+
+	auto& bart = context.GetActor<IFinancialActor>(m_bartId);
 	bart.ReceiveCash(account, RandomMoney(0, 50));
 	std::cout << GetName() << ": " << "Get money to Bart" << std::endl;
 }
 
-IMoneyStorage& Homer::StealMoney()
+IMoneyStorage& Homer::GetStorageToSteal()
 {
 	return GetBankAccount();
 }

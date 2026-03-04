@@ -1,6 +1,6 @@
 #include "Liza.hpp"
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "MoneyTransfer.hpp"
 
 #include <iostream>
 
@@ -12,7 +12,7 @@ Liza::Liza(const ActorId id, Bank& bank, const ActorId apuId)
 
 void Liza::Tick(EconomyContext& context)
 {
-	IActor& apu = context.GetActor(m_apuId);
+	auto& apu = context.GetActor<IFinancialActor>(m_apuId);
 	apu.ReceiveCash(m_wallet, 35);
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }

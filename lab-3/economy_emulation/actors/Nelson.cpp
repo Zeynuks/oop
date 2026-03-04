@@ -1,7 +1,8 @@
 #include "Nelson.hpp"
 
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "IStealable.hpp"
+#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>
@@ -17,14 +18,13 @@ void Nelson::Tick(EconomyContext& context)
 {
 	if (RandomBool())
 	{
-		IActor& bart = context.GetActor(m_bartId);
-		IMoneyStorage& bartWallet = bart.StealMoney();
+		auto& bart = context.GetActor<IStealable>(m_bartId);
+		IMoneyStorage& bartWallet = bart.GetStorageToSteal();
 
 		ReceiveCash(bartWallet, RandomMoney(20, 50));
 		std::cout << GetName() << ": " << "Steal money from Bart" << std::endl;
 
-		IActor& apu = context.GetActor(m_apuId);
-
+		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
 		apu.ReceiveCash(m_wallet, 30);
 		std::cout << GetName() << ": " << "Buy cigarettes" << std::endl;
 	}

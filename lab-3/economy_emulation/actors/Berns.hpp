@@ -1,5 +1,5 @@
 #pragma once
-#include "../core/BaseActor.hpp"
+#include "BaseActor.hpp"
 
 class Berns : public BaseActor
 {

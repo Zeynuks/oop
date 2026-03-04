@@ -1,7 +1,7 @@
 #include "Marge.hpp"
 
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "MoneyTransfer.hpp"
 
 #include <iostream>
 
@@ -16,8 +16,7 @@ void Marge::Tick(EconomyContext& context)
 {
 	IMoneyStorage& account = GetBankAccount();
 
-	IActor& apu = context.GetActor(m_apuId);
-
+	auto& apu = context.GetActor<IFinancialActor>(m_apuId);
 	apu.ReceiveBankTransfer(account, 75);
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }

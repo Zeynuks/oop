@@ -1,6 +1,7 @@
 #pragma once
 #include "IActor.hpp"
 
+#include <list>
 #include <memory>
 #include <unordered_map>
 
@@ -8,7 +9,9 @@ class EconomyContext
 {
 public:
 	void AddActor(std::unique_ptr<IActor> actor);
-	[[nodiscard]] IActor& GetActor(ActorId id);
+
+	template <typename T>
+	[[nodiscard]] T& GetActor(ActorId id);
 	[[nodiscard]] std::list<std::reference_wrapper<IActor>> GetAllActors();
 
 private:

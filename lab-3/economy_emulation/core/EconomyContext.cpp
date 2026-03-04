@@ -11,11 +11,16 @@ void EconomyContext::AddActor(std::unique_ptr<IActor> actor)
 	}
 }
 
-IActor& EconomyContext::GetActor(const ActorId id)
+template <typename T>
+T& EconomyContext::GetActor(const ActorId id)
 {
 	if (const auto it = m_actors.find(id); it != m_actors.end())
 	{
-		return *it->second;
+		if (auto* casted = dynamic_cast<T*>(it->second.get()))
+		{
+			return *casted;
+		}
+		throw std::runtime_error("Actor found, but requested interface is not supported.");
 	}
 
 	throw std::runtime_error("Actor with specified ID not found.");

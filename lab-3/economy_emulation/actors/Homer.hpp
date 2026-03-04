@@ -1,14 +1,16 @@
 #pragma once
 
-#include "../core/BaseActor.hpp"
-#include "../core/EconomyContext.hpp"
+#include "BaseActor.hpp"
+#include "EconomyContext.hpp"
+#include "IStealable.hpp"
 
 class Homer : public BaseActor
+	, public IStealable
 {
 public:
 	explicit Homer(ActorId id, Bank& bank, ActorId margeId, ActorId bernsId, ActorId bartId, ActorId lisaId, ActorId chesterId);
 	void Tick(EconomyContext& context) override;
-	IMoneyStorage& StealMoney() override;
+	IMoneyStorage& GetStorageToSteal() override;
 
 private:
 	ActorId m_margeId;

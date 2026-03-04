@@ -1,25 +1,25 @@
 #include "Bart.hpp"
 
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>
 
 Bart::Bart(const ActorId id, Bank& bank, const ActorId apuId)
-	: BaseActor(id, "Berns", bank)
+	: BaseActor(id, "Bart", bank)
 	, m_apuId(apuId)
 {
 }
 
 void Bart::Tick(EconomyContext& context)
 {
-	IActor& apu = context.GetActor(m_apuId);
+	auto& apu = context.GetActor<IFinancialActor>(m_apuId);
 	apu.ReceiveCash(m_wallet, 40);
 	std::cout << GetName() << ": " << "Buy products" << std::endl;
 }
 
-IMoneyStorage& Bart::StealMoney()
+void Bart::StealMoney(IFinancialActor& stealer, const Money amount)
 {
-	return m_wallet;
+	stealer.ReceiveCash(m_wallet, amount);
 }

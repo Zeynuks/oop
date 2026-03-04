@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/BaseActor.hpp"
+#include "BaseActor.hpp"
 
 class Liza : public BaseActor
 {

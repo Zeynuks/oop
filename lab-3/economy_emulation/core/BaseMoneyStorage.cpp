@@ -10,8 +10,8 @@ BaseMoneyStorage::BaseMoneyStorage()
 {
 }
 
-BaseMoneyStorage::BaseMoneyStorage(const Money amount)
-	: m_balance(amount)
+BaseMoneyStorage::BaseMoneyStorage(const Money initialAmount)
+	: m_balance(initialAmount)
 {
 }
 

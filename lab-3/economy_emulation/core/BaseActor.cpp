@@ -3,10 +3,11 @@
 #include "MoneyTransfer.hpp"
 #include "errors/ActorError.hpp"
 
-BaseActor::BaseActor(const ActorId id, const std::string& name, Bank& bank)
+BaseActor::BaseActor(const ActorId id, const std::string& name, Bank& bank, const Money initialWalletCash)
 	: m_id(id)
 	, m_name(name)
 	, m_bank(bank)
+	, m_wallet(initialWalletCash)
 {
 }
 
@@ -30,16 +31,18 @@ IMoneyStorage& BaseActor::GetBankAccount()
 	return m_bankAccount->get();
 }
 
-void BaseActor::OpenBankAccount()
+void BaseActor::OpenBankAccount(const Money initialAmount)
 {
-	IMoneyStorage& account = m_bank.OpenAccount();
-	m_bankAccount = std::ref(account);
-}
+	if (!m_bankAccount)
+	{
+		IMoneyStorage& account = m_bank.OpenAccount(initialAmount);
+		m_bankAccount = std::ref(account);
 
-void BaseActor::OpenBankAccount(const Money amount)
-{
-	IMoneyStorage& account = m_bank.OpenAccount(amount);
-	m_bankAccount = std::ref(account);
+		if (initialAmount > 0)
+		{
+			MoneyTransfer(m_wallet, initialAmount).To(account);
+		}
+	}
 }
 
 void BaseActor::CloseBankAccount()
@@ -60,25 +63,4 @@ void BaseActor::ReceiveBankTransfer(IMoneyStorage& from, const Money amount)
 void BaseActor::ReceiveCash(IMoneyStorage& from, const Money amount)
 {
 	MoneyTransfer(from, amount).To(m_wallet);
-}
-
-IMoneyStorage& BaseActor::StealMoney()
-{
-	throw ActorError("You cannot steal from that Actor!");
-}
-
-void BaseActor::WithdrawMoney(const Money amount)
-{
-	IMoneyStorage& account = GetBankAccount();
-
-	MoneyTransfer transfer(account, amount);
-	transfer.To(m_wallet);
-}
-
-void BaseActor::DepositMoney(const Money amount)
-{
-	IMoneyStorage& account = GetBankAccount();
-
-	MoneyTransfer transfer(m_wallet, amount);
-	transfer.To(account);
 }

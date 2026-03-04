@@ -1,8 +1,9 @@
 #include "Chester.hpp"
 
-#include "../core/EconomyContext.hpp"
-#include "../core/MoneyTransfer.hpp"
+#include "EconomyContext.hpp"
+#include "IStealable.hpp"
 #include "Liza.hpp"
+#include "MoneyTransfer.hpp"
 #include "Random.hpp"
 
 #include <iostream>
@@ -21,13 +22,12 @@ void Chester::Tick(EconomyContext& context)
 	{
 		IMoneyStorage& account = GetBankAccount();
 
-		IActor& homer = context.GetActor(m_homerId);
-		IMoneyStorage& homerBankAccount = homer.StealMoney();
-
+		auto& homer = context.GetActor<IStealable>(m_homerId);
+		auto& homerBankAccount = homer.GetStorageToSteal();
 		ReceiveBankTransfer(homerBankAccount, RandomMoney(100, 150));
 		std::cout << GetName() << ": " << "Steal money from Homer" << std::endl;
 
-		IActor& apu = context.GetActor(m_apuId);
+		auto& apu = context.GetActor<IFinancialActor>(m_apuId);
 		apu.ReceiveCash(account, 100);
 		std::cout << GetName() << ": " << "Buy products" << std::endl;
 	}
