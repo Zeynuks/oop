@@ -15,4 +15,5 @@ target_link_libraries(EconomyEmulation
         economy_core_lib
         economy_actors_lib
 )
-#add_subdirectory(tests)
+
+add_subdirectory(tests)
