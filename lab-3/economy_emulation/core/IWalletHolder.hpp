@@ -1,4 +1,5 @@
 #pragma once
+
 #include "money_storage/Wallet.hpp"
 
 class IWalletHolder

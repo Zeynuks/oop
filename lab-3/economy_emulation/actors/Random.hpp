@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Bank.hpp"
+#include "../core/Bank.hpp"
 
 #include <random>
 

@@ -2,15 +2,34 @@
 #include "IActor.hpp"
 
 #include <memory>
+#include <ranges>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
-#include <stdexcept>
 
 class EconomyContext
 {
 public:
-	void AddActor(std::unique_ptr<IActor> actor);
-	[[nodiscard]] std::vector<std::reference_wrapper<IActor>> GetAllActors();
+	void AddActor(std::unique_ptr<IActor> actor)
+	{
+		if (actor)
+		{
+			const ActorId id = actor->GetId();
+			m_actors[id] = std::move(actor);
+		}
+	}
+
+	std::vector<std::reference_wrapper<IActor>> GetAllActors()
+	{
+		std::vector<std::reference_wrapper<IActor>> result;
+
+		for (auto& actor : m_actors | std::views::values)
+		{
+			result.push_back(*actor);
+		}
+
+		return result;
+	}
 
 	template <typename T>
 	T& GetActor(const ActorId id)
