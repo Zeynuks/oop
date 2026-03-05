@@ -5,7 +5,6 @@
 #include "../core/Person.hpp"
 #include "Random.hpp"
 
-class IStealable;
 class Chester : public Person
 {
 public:
