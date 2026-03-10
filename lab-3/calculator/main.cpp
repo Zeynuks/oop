@@ -1,12 +1,7 @@
-#include "Menu.hpp"
 #include "./core/Calculator.hpp"
-#include "commands/AssignVariableCommand.hpp"
-#include "commands/DeclareVariableCommand.hpp"
-#include "commands/DefineFunctionCommand.hpp"
-#include "commands/ExitMenuCommand.hpp"
-#include "commands/PrintCommand.hpp"
-#include "commands/PrintFunctionCommand.hpp"
-#include "commands/PrintVariablesCommand.hpp"
+#include "CalculatorController.hpp"
+#include "Menu.hpp"
+#include "ParseArguments.hpp"
 
 #include <exception>
 #include <iostream>
@@ -16,19 +11,39 @@ Menu InitCalculatorMenu(Calculator& calculator)
 	Menu menu;
 
 	menu.AddItem("var", "Declare a new variable: var <name> (initial value nan)",
-		std::make_unique<DeclareVariableCommand>(calculator));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::DeclareVar(calculator, parsedArgs);
+		});
 	menu.AddItem("let", "Assign value: let <var> = <number|var>",
-		std::make_unique<AssignVariableCommand>(calculator));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::AssignVar(calculator, parsedArgs);
+		});
 	menu.AddItem("fn", "Define a function: fn <name> = <id> | <id><op><id> (+,-,*,/)",
-		std::make_unique<DefineFunctionCommand>(calculator));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::DefineFunction(calculator, parsedArgs);
+		});
 	menu.AddItem("print", "Print value: print <id> (2 decimals, nan if undefined)",
-		std::make_unique<PrintCommand>(calculator, std::cout));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::Print(calculator, parsedArgs, std::cout);
+		});
 	menu.AddItem("printvars", "Print all variables: <name>:<value> sorted alphabetically",
-		std::make_unique<PrintVariablesCommand>(calculator, std::cout));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::PrintVars(calculator, std::cout);
+		});
 	menu.AddItem("printfns", "Print all functions: <name>:<value> sorted alphabetically",
-		std::make_unique<PrintFunctionCommand>(calculator, std::cout));
+		[&](const auto& args) {
+			auto parsedArgs = ParseArguments(args);
+			CalculatorController::PrintFunctions(calculator, std::cout);
+		});
 	menu.AddItem("exit", "Close menu",
-		std::make_unique<ExitMenuCommand>(menu));
+		[&menu](const auto& /*args*/) {
+			menu.Exit();
+		});
 
 	return menu;
 }
