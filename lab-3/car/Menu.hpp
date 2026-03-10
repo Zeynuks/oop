@@ -1,101 +1,102 @@
 #pragma once
 
-#include "commands/ICommand.hpp"
-
 #include <algorithm>
+#include <functional>
 #include <iostream>
-#include <memory>
-#include <sstream>
-#include <utility>
+#include <ranges>
+#include <string>
+#include <string_view>
 #include <vector>
 
 class Menu
 {
 public:
-	void AddItem(const std::string& shortcut, const std::string& description,
-		std::unique_ptr<ICommand>&& command)
+	using Action = std::function<void(const std::vector<std::string>& args)>;
+
+	void AddItem(std::string shortcut, std::string description, Action action)
 	{
-		m_items.emplace_back(shortcut, description, std::move(command));
+		m_items.push_back({ std::move(shortcut), std::move(description), std::move(action) });
 	}
-	void Run()
-	{
-		std::string command;
-		while (std::cout << "> " && getline(std::cin, command) && ExecuteCommand(command))
-		{
-		}
-	}
+
 	void ShowInstructions() const
 	{
 		std::cout << "Commands list:" << std::endl;
-		for (auto& item : m_items)
+		for (const auto& item : m_items)
 		{
 			std::cout << "  " << item.shortcut << ": " << item.description << std::endl;
 		}
 	}
+
 	void Exit()
 	{
 		m_exit = true;
 	}
 
+	void Run()
+	{
+		m_exit = false;
+		std::string line;
+
+		while (!m_exit && (std::cout << "> ", std::getline(std::cin, line)))
+		{
+			auto [shortcut, args] = ParseLine(line);
+
+			if (shortcut.empty())
+			{
+				continue;
+			}
+
+			auto it = std::ranges::find_if(m_items, [&](const Item& item) {
+				return item.shortcut == shortcut;
+			});
+
+			if (it != m_items.end())
+			{
+				try
+				{
+					it->action(args);
+				}
+				catch (const std::exception& e)
+				{
+					std::cout << "Error: " << e.what() << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << "Unknown command. Type 'Help' for instructions." << std::endl;
+			}
+		}
+	}
+
 private:
 	struct Item
 	{
-		Item(std::string shortcut, std::string description,
-			std::unique_ptr<ICommand>&& command)
-			: shortcut(std::move(shortcut))
-			, description(std::move(description))
-			, command(std::move(command))
-		{
-		}
 		std::string shortcut;
 		std::string description;
-		std::unique_ptr<ICommand> command;
+		Action action;
 	};
 
-	std::vector<Item> m_items;
-	bool m_exit = false;
-
-	static std::pair<std::string, std::vector<std::string>> ParseLine(const std::string& line)
+	static std::pair<std::string, std::vector<std::string>> ParseLine(std::string_view line)
 	{
-		std::istringstream iss(line);
-		std::string shortcut;
-		iss >> shortcut;
+		auto words = line
+			| std::views::split(' ')
+			| std::views::filter([](auto&& rng) { return !rng.empty(); })
+			| std::views::transform([](auto&& rng) {
+				  return std::string(rng.begin(), rng.end());
+			  })
+			| std::ranges::to<std::vector<std::string>>();
 
-		std::vector<std::string> args;
-		std::string arg;
-		while (iss >> arg)
-			args.push_back(arg);
+		if (words.empty())
+		{
+			return { "", {} };
+		}
+
+		std::string shortcut = words[0];
+		std::vector args(words.begin() + 1, words.end());
 
 		return { shortcut, args };
 	}
 
-	bool ExecuteCommand(const std::string& line)
-	{
-		m_exit = false;
-
-		auto [shortcut, args] = ParseLine(line);
-
-		const auto it = std::ranges::find_if(m_items, [&](const Item& item) {
-			return item.shortcut == shortcut;
-		});
-
-		if (it != m_items.end())
-		{
-			try
-			{
-				it->command->ParseArgs(args);
-				it->command->Execute();
-			}
-			catch (const std::exception& e)
-			{
-				std::cout << "Error: " << e.what() << std::endl;
-			}
-		}
-		else
-		{
-			std::cout << "Unknown command" << std::endl;
-		}
-
-		return !m_exit;
-	}
+	std::vector<Item> m_items;
+	bool m_exit = false;
 };
