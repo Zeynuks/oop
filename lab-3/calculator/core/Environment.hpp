@@ -1,97 +1,144 @@
 #pragma once
-#include "IExpression.hpp"
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
-/**
- * @brief Класс Environment для хранения переменных и функций калькулятора.
- *
- * Поддерживает объявление и обновление переменных, определение функций
- * с использованием IExpression, вычисление значений и кеширование результатов.
- */
-class Environment
+#include <vector>
+#include <string>
+#include <memory>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <stdexcept>
+
+#include "IExpression.hpp"
+
+class Environment : public IValueProvider
 {
 public:
-	/**
-	 * @brief Устанавливает значение переменной.
-	 *
-	 * Если переменная не существует, она создается.
-	 *
-	 * @param id Имя переменной
-	 * @param val Значение переменной
-	 */
-	void SetVariable(const std::string& id, double val);
+	void SetVariable(const std::string& id, double value)
+	{
+		m_variables[id] = value;
+		InvalidateCache();
+	}
 
-	/**
-	 * @brief Устанавливает функцию в среду.
-	 *
-	 * Функция представлена объектом IExpression.
-	 *
-	 * @param id Имя функции
-	 * @param expr Умный указатель на IExpression
-	 */
-	void SetFunction(const std::string& id, std::shared_ptr<IExpression> expr);
+	void SetFunction(const std::string& id, std::unique_ptr<IExpression> expr)
+	{
+		m_functions[id] = std::move(expr);
+		InvalidateCache();
+	}
 
-	/**
-	 * @brief Очищает кеш вычислений всех функций.
-	 */
-	void ClearCache();
+	bool IsVariable(const std::string& id) const
+	{
+		return m_variables.contains(id);
+	}
 
-	/**
-	 * @brief Проверяет, существует ли переменная с данным именем.
-	 *
-	 * @param id Имя переменной
-	 * @return true если переменная существует, иначе false
-	 */
-	bool IsVariable(const std::string& id) const;
+	bool IsFunction(const std::string& id) const
+	{
+		return m_functions.contains(id);
+	}
 
-	/**
-	 * @brief Проверяет, существует ли функция с данным именем.
-	 *
-	 * @param id Имя функции
-	 * @return true если функция существует, иначе false
-	 */
-	bool IsFunction(const std::string& id) const;
+	bool Exists(const std::string& id) const
+	{
+		return IsVariable(id) || IsFunction(id);
+	}
 
-	/**
-	 * @brief Проверяет, существует ли идентификатор (переменная или функция).
-	 *
-	 * @param id Имя идентификатора
-	 * @return true если идентификатор существует, иначе false
-	 */
-	bool Exists(const std::string& id) const;
+	double GetValue(const std::string& id) override
+	{
+		if (IsVariable(id))
+		{
+			return m_variables.at(id);
+		}
 
-	/**
-	 * @brief Возвращает значение переменной или вычисленное значение функции.
-	 *
-	 * @param id Имя переменной или функции
-	 * @return Значение типа double
-	 * @throw std::runtime_error если идентификатор не найден или возникает циклическая зависимость
-	 */
-	double GetValue(const std::string& id);
+		if (IsFunction(id))
+		{
+			return EvaluateFunction(id);
+		}
 
-	/**
-	 * @brief Возвращает все переменные с их значениями.
-	 *
-	 * @return Константная ссылка на unordered_map с именами и значениями переменных
-	 */
-	std::unordered_map<std::string, double> GetAllVariables() const;
+		return std::stod(id);
+	}
 
-	/**
-	 * @brief Возвращает все функции с их выражениями.
-	 *
-	 * @return Константная ссылка на unordered_map с именами функций и указателями на IExpression
-	 */
-	std::unordered_map<std::string, std::shared_ptr<IExpression>> GetAllFunctions() const;
+	void InvalidateCache()
+	{
+		m_cache.clear();
+	}
+
+	std::unordered_map<std::string, double> GetAllVariables() const
+	{
+		return m_variables;
+	}
+
+	const std::unordered_map<std::string, std::unique_ptr<IExpression>>& GetAllFunctions() const
+	{
+		return m_functions;
+	}
 
 private:
-	void FillEvaluationCache(const std::string& rootId);
-	bool TryExpandDependencies(std::vector<std::string>& stack, const std::shared_ptr<IExpression>& expr) const;
-	void EvaluateAndStore(const std::string& id, const std::shared_ptr<IExpression>& expr);
+	double EvaluateFunction(const std::string& id)
+	{
+		if (const auto it = m_cache.find(id); it != m_cache.end())
+		{
+			return it->second;
+		}
 
-	std::unordered_map<std::string, double> m_variables; ///< Переменные и их значения
-	std::unordered_map<std::string, std::shared_ptr<IExpression>> m_functions; ///< Функции и их выражения
-	std::unordered_map<std::string, double> m_cache; ///< Кеш вычисленных значений функций
+		std::stack<std::pair<std::string, size_t>> evalStack;
+		std::unordered_set<std::string> inCurrPath;
+
+		evalStack.push({ id, 0 });
+
+		while (!evalStack.empty())
+		{
+			if (!EvaluateStack(evalStack, inCurrPath))
+			{
+				NodeEvaluation(evalStack, inCurrPath);
+			}
+		}
+
+		return m_cache.at(id);
+	}
+
+	bool EvaluateStack(std::stack<std::pair<std::string, size_t>>& stack,
+		std::unordered_set<std::string>& path) const
+	{
+		auto& [currId, depIdx] = stack.top();
+
+		if (depIdx == 0)
+		{
+			if (path.contains(currId))
+			{
+				throw std::runtime_error("Cyclic dependency detected: " + currId);
+			}
+
+			path.insert(currId);
+		}
+
+		std::vector<std::string> deps;
+		m_functions.at(currId)->GetDependencies(deps);
+
+		for (; depIdx < deps.size(); ++depIdx)
+		{
+			if (const std::string& dep = deps[depIdx]; IsFunction(dep) && !m_cache.contains(dep))
+			{
+				depIdx++;
+				stack.push({ dep, 0 });
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void NodeEvaluation(std::stack<std::pair<std::string, size_t>>& stack,
+		std::unordered_set<std::string>& path)
+	{
+		const std::string currentId = stack.top().first;
+		m_cache[currentId] = m_functions.at(currentId)->Evaluate(*this);
+
+		path.erase(currentId);
+		stack.pop();
+	}
+
+	std::unordered_map<std::string, double> m_variables;
+	std::unordered_map<std::string, std::unique_ptr<IExpression>> m_functions;
+
+	std::unordered_map<std::string, double> m_cache;
+	std::unordered_set<std::string> m_evaluating;
 };

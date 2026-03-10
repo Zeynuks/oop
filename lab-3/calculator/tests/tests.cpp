@@ -82,7 +82,7 @@ TEST_F(CalculatorTest, GetAll)
 	EXPECT_EQ(vars.size(), 1);
 	EXPECT_EQ(vars.at("v1"), 1.0);
 
-	const auto funcs = calc.GetAllFunctions();
+	const auto& funcs = calc.GetAllFunctions();
 	EXPECT_EQ(funcs.size(), 1);
 	EXPECT_EQ(funcs.at("f1"), 1.0);
 }
