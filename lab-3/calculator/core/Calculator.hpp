@@ -2,11 +2,11 @@
 #include "Environment.hpp"
 #include "IExpression.hpp"
 
+#include <cctype>
 #include <limits>
 #include <ranges>
 #include <stdexcept>
 #include <unordered_map>
-#include <cctype>
 
 class Calculator
 {
@@ -72,17 +72,11 @@ public:
 
 		if (IsNumber(operand))
 		{
-			m_env.SetFunction(
-				id,
-				std::make_unique<NumberExpression>(std::stod(operand))
-			);
+			m_env.SetFunction(id, std::make_unique<NumberExpression>(std::stod(operand)));
 		}
 		else
 		{
-			m_env.SetFunction(
-				id,
-				std::make_unique<VariableExpression>(operand)
-			);
+			m_env.SetFunction(id, std::make_unique<VariableExpression>(operand));
 		}
 	}
 
@@ -110,9 +104,7 @@ public:
 			std::make_unique<BinaryExpression>(
 				operation,
 				CreateExpression(function.left),
-				CreateExpression(function.right)
-			)
-		);
+				CreateExpression(function.right)));
 	}
 
 	double GetValue(const std::string& id)
@@ -127,14 +119,14 @@ public:
 
 	std::unordered_map<std::string, double> GetAllFunctions()
 	{
-		std::unordered_map<std::string, double> res;
+		std::unordered_map<std::string, double> result;
 
 		for (const auto& name : m_env.GetAllFunctions() | std::views::keys)
 		{
-			res[name] = m_env.GetValue(name);
+			result[name] = m_env.GetValue(name);
 		}
 
-		return res;
+		return result;
 	}
 
 private:
@@ -164,7 +156,7 @@ private:
 			return false;
 		}
 
-		for (char c : id)
+		for (const char c : id)
 		{
 			if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_')
 			{
@@ -175,23 +167,23 @@ private:
 		return true;
 	}
 
-	bool IsOperandValid(const std::string& op) const
+	bool IsOperandValid(const std::string& operand) const
 	{
-		if (m_env.Exists(op))
+		if (m_env.Exists(operand))
 		{
 			return true;
 		}
 
-		return IsNumber(op);
+		return IsNumber(operand);
 	}
 
-	static bool IsNumber(const std::string& str)
+	static bool IsNumber(const std::string& string)
 	{
 		try
 		{
 			size_t pos;
-			std::stod(str, &pos);
-			return pos == str.size();
+			std::stod(string, &pos);
+			return pos == string.size();
 		}
 		catch (...)
 		{
