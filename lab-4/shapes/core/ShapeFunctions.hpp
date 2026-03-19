@@ -3,34 +3,35 @@
 #include "IShape.hpp"
 
 #include <algorithm>
-#include <memory>
+#include <ranges>
+#include <stdexcept>
 
 namespace ShapeFunctions
 {
-inline IShape& FindMaxAreaShape(std::vector<std::unique_ptr<IShape>>& shapes)
+IShape& FindMaxAreaShape(const std::ranges::forward_range auto& shapes)
 {
-	if (shapes.empty())
+	if (std::ranges::begin(shapes) == std::ranges::end(shapes))
 	{
 		throw std::runtime_error("No shapes available");
 	}
 
 	const auto it = std::ranges::max_element(shapes,
-		[](const std::unique_ptr<IShape>& a, const std::unique_ptr<IShape>& b) {
+		[](const auto& a, const auto& b) {
 			return a->GetArea() < b->GetArea();
 		});
 
 	return **it;
 }
 
-inline IShape& FindMinPerimeterShape(std::vector<std::unique_ptr<IShape>>& shapes)
+IShape& FindMinPerimeterShape(const std::ranges::forward_range auto& shapes)
 {
-	if (shapes.empty())
+	if (std::ranges::begin(shapes) == std::ranges::end(shapes))
 	{
 		throw std::runtime_error("No shapes available");
 	}
 
 	const auto it = std::ranges::min_element(shapes,
-		[](const std::unique_ptr<IShape>& a, const std::unique_ptr<IShape>& b) {
+		[](const auto& a, const auto& b) {
 			return a->GetPerimeter() < b->GetPerimeter();
 		});
 
