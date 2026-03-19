@@ -19,7 +19,7 @@ int main()
 
 	if (!inputFile.is_open()) {
 		std::cerr << "Не удалось открыть файл test.txt" << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	std::vector<std::unique_ptr<IShape>> shapes = shapeParser.Parse(inputFile);
