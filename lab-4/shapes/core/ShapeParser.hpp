@@ -17,13 +17,13 @@ constexpr auto triangle = "triangle";
 class ShapeParser
 {
 public:
-	explicit ShapeParser(ShapeController& shapeController)
-		: m_shapeController(shapeController)
+	explicit ShapeParser()
 	{
 	}
 
-	void Parse(std::istream& input) const
+	static std::vector<std::unique_ptr<IShape>> Parse(std::istream& input)
 	{
+		std::vector<std::unique_ptr<IShape>> shapes;
 		std::string line;
 
 		while (std::getline(input, line))
@@ -39,29 +39,30 @@ public:
 
 			if (shapeType == ShapeNames::circle)
 			{
-				ParseCircle(stream);
+				ParseCircle(stream, shapes);
 			}
 			else if (shapeType == ShapeNames::line)
 			{
-				ParseLine(stream);
+				ParseLine(stream, shapes);
 			}
 			else if (shapeType == ShapeNames::rectangle)
 			{
-				ParseRectangle(stream);
+				ParseRectangle(stream, shapes);
 			}
 			else if (shapeType == ShapeNames::triangle)
 			{
-				ParseTriangle(stream);
+				ParseTriangle(stream, shapes);
 			}
 			else
 			{
 				std::cerr << "Error: " << "unknown shape type '" << shapeType << "'" << std::endl;
 			}
 		}
+
+		return shapes;
 	}
 
 private:
-	ShapeController& m_shapeController;
 
 	static bool CheckStream(const std::istream& input)
 	{
@@ -74,7 +75,7 @@ private:
 		return true;
 	}
 
-	void ParseCircle(std::istream& input) const
+	static void ParseCircle(std::istream& input, std::vector<std::unique_ptr<IShape>>& shapes)
 	{
 		Point center;
 		double radius;
@@ -98,10 +99,11 @@ private:
 			fillColor = colorValue;
 		}
 
-		m_shapeController.AddCircle(radius, center, outlineColor, fillColor);
+		auto circle = std::make_unique<Circle>(radius, center, outlineColor, fillColor);
+		shapes.push_back(std::move(circle));
 	}
 
-	void ParseLine(std::istream& input) const
+	static void ParseLine(std::istream& input, std::vector<std::unique_ptr<IShape>>& shapes)
 	{
 		Point startPoint;
 		Point endPoint;
@@ -118,10 +120,11 @@ private:
 			outlineColor = colorValue;
 		}
 
-		m_shapeController.AddLine(startPoint, endPoint, outlineColor);
+		auto line = std::make_unique<LineSegment>(startPoint, endPoint, outlineColor);
+		shapes.push_back(std::move(line));
 	}
 
-	void ParseRectangle(std::istream& input) const
+	static void ParseRectangle(std::istream& input, std::vector<std::unique_ptr<IShape>>& shapes)
 	{
 		Point startPoint;
 		Point endPoint;
@@ -145,10 +148,11 @@ private:
 			fillColor = colorValue;
 		}
 
-		m_shapeController.AddRectangle(startPoint, endPoint, outlineColor, fillColor);
+		auto rectangle = std::make_unique<Rectangle>(startPoint, endPoint, outlineColor, fillColor);
+		shapes.push_back(std::move(rectangle));
 	}
 
-	void ParseTriangle(std::istream& input) const
+	static void ParseTriangle(std::istream& input, std::vector<std::unique_ptr<IShape>>& shapes)
 	{
 		Point point1;
 		Point point2;
@@ -173,6 +177,7 @@ private:
 			fillColor = colorValue;
 		}
 
-		m_shapeController.AddTriangle(point1, point2, point3, outlineColor, fillColor);
+		auto circle = std::make_unique<Triangle>(point1, point2, point3, outlineColor, fillColor);
+		shapes.push_back(std::move(circle));
 	}
 };

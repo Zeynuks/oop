@@ -1,4 +1,5 @@
 #include "core/SFMLCanvas.hpp"
+#include "core/ShapeFunctions.hpp"
 #include "core/ShapeParser.hpp"
 
 #include <iostream>
@@ -13,8 +14,7 @@ constexpr unsigned int windowHeight = 800;
 
 int main()
 {
-	ShapeController shapeController;
-	const ShapeParser shapeParser(shapeController);
+	const ShapeParser shapeParser;
 	std::ifstream inputFile("test.txt");
 
 	if (!inputFile.is_open()) {
@@ -22,13 +22,13 @@ int main()
 		return 1;
 	}
 
-	shapeParser.Parse(inputFile);
+	std::vector<std::unique_ptr<IShape>> shapes = shapeParser.Parse(inputFile);
 
-	IShape& shapeWithMaxArea = shapeController.FindMaxAreaShape();
+	IShape& shapeWithMaxArea = ShapeFunctions::FindMaxAreaShape(shapes);
 	std::cout << "Max Area shape: " << std::endl;
 	std::cout << shapeWithMaxArea.ToString() << std::endl;
 
-	IShape& shapeWithMaxPerimeter = shapeController.FindMaxAreaShape();
+	IShape& shapeWithMaxPerimeter = ShapeFunctions::FindMaxAreaShape(shapes);
 	std::cout << "Min Perimeter shape: " << std::endl;
 	std::cout << shapeWithMaxPerimeter.ToString() << std::endl;
 
@@ -37,7 +37,11 @@ int main()
 	while (canvas.IsOpen())
 	{
 		canvas.PollEvents();
-		shapeController.DrawShapes(canvas);
+		for (const auto& shape : shapes) {
+			if (shape) {
+				shape->Draw(canvas);
+			}
+		}
 		canvas.Display();
 	}
 }
