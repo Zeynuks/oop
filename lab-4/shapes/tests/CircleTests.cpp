@@ -4,7 +4,6 @@
 #include <cmath>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <sstream>
 
 using namespace testing;
 
@@ -75,15 +74,11 @@ TEST(CircleBoundary, LargeRadius_CalculatesCorrectly)
 
 TEST_F(CircleTest, Draw_InteractsWithCanvas)
 {
-	std::stringstream output;
-	MockCanvas canvas(output);
+	MockCanvas canvas;
 	const Circle circle(radius, center, outlineColor, fillColor);
 
-	circle.Draw(canvas);
-	const std::string result = output.str();
+	EXPECT_CALL(canvas, FillCircle(center, radius, fillColor)).Times(1);
+	EXPECT_CALL(canvas, DrawCircle(center, radius, outlineColor)).Times(1);
 
-	EXPECT_THAT(result, HasSubstr("FillCircle"));
-	EXPECT_THAT(result, HasSubstr("DrawCircle"));
-	EXPECT_THAT(result, HasSubstr("center (5.00, 5.00)"));
-	EXPECT_THAT(result, HasSubstr("radius 10.00"));
+	circle.Draw(canvas);
 }
