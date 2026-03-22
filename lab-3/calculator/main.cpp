@@ -1,5 +1,5 @@
 #include "./core/Calculator.hpp"
-#include "CalculatorController.hpp"
+#include "CalculatorFunctions.hpp"
 #include "Menu.hpp"
 #include "ParseArguments.hpp"
 
@@ -13,32 +13,32 @@ Menu InitCalculatorMenu(Calculator& calculator)
 	menu.AddItem("var", "Declare a new variable: var <name> (initial value nan)",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::DeclareVar(calculator, parsedArgs);
+			CalculatorFunctions::DeclareVar(calculator, parsedArgs);
 		});
 	menu.AddItem("let", "Assign value: let <var> = <number|var>",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::AssignVar(calculator, parsedArgs);
+			CalculatorFunctions::AssignVar(calculator, parsedArgs);
 		});
 	menu.AddItem("fn", "Define a function: fn <name> = <id> | <id><op><id> (+,-,*,/)",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::DefineFunction(calculator, parsedArgs);
+			CalculatorFunctions::DefineFunction(calculator, parsedArgs);
 		});
 	menu.AddItem("print", "Print value: print <id> (2 decimals, nan if undefined)",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::Print(calculator, parsedArgs, std::cout);
+			CalculatorFunctions::Print(calculator, parsedArgs, std::cout);
 		});
 	menu.AddItem("printvars", "Print all variables: <name>:<value> sorted alphabetically",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::PrintVars(calculator, std::cout);
+			CalculatorFunctions::PrintVars(calculator, std::cout);
 		});
 	menu.AddItem("printfns", "Print all functions: <name>:<value> sorted alphabetically",
 		[&](const auto& args) {
 			auto parsedArgs = ParseArguments(args);
-			CalculatorController::PrintFunctions(calculator, std::cout);
+			CalculatorFunctions::PrintFunctions(calculator, std::cout);
 		});
 	menu.AddItem("exit", "Close menu",
 		[&menu](const auto& /*args*/) {

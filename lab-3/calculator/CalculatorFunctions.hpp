@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace CalculatorController
+namespace CalculatorFunctions
 {
 namespace Detail
 {
