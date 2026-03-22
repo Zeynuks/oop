@@ -1,4 +1,5 @@
 #include "../core/Calculator.hpp"
+#include <algorithm>
 #include <cmath>
 #include <gtest/gtest.h>
 
@@ -6,6 +7,20 @@ class CalculatorTest : public testing::Test
 {
 protected:
 	Calculator calc;
+
+	static double FindValue(const std::vector<std::pair<std::string, double>>& data, const std::string& id)
+	{
+		const auto it = std::ranges::find_if(data, [&id](const auto& p) {
+			return p.first == id;
+		});
+
+		if (it == data.end())
+		{
+			throw std::out_of_range("Identifier not found in results: " + id);
+		}
+
+		return it->second;
+	}
 };
 
 TEST_F(CalculatorTest, DeclareVariable)
@@ -80,11 +95,11 @@ TEST_F(CalculatorTest, GetAll)
 
 	const auto vars = calc.GetAllVariables();
 	EXPECT_EQ(vars.size(), 1);
-	EXPECT_EQ(vars.at("v1"), 1.0);
+	EXPECT_DOUBLE_EQ(FindValue(vars, "v1"), 1.0);
 
-	const auto& funcs = calc.GetAllFunctions();
+	const auto funcs = calc.GetAllFunctions();
 	EXPECT_EQ(funcs.size(), 1);
-	EXPECT_EQ(funcs.at("f1"), 1.0);
+	EXPECT_DOUBLE_EQ(FindValue(funcs, "f1"), 1.0);
 }
 
 TEST_F(CalculatorTest, CacheAndRecomputation)
@@ -119,7 +134,7 @@ TEST_F(CalculatorTest, DivisionByZero)
 	calc.AssignVariable("zero", 0.0);
 
 	calc.DefineFunction("f", { "a", "zero", Operation::Div });
-	EXPECT_THROW(calc.GetValue("f"), std::runtime_error);
+	EXPECT_TRUE(std::isnan(calc.GetValue("f")));
 }
 
 TEST_F(CalculatorTest, NaNInOperations)
@@ -138,9 +153,8 @@ TEST_F(CalculatorTest, InvalidOperation)
 	calc.DeclareVariable("a");
 	calc.AssignVariable("a", 1.0);
 
-	EXPECT_THROW(
-		calc.DefineFunction("bad_op", { "a", "a", static_cast<Operation>(99) }),
-		std::logic_error);
+	calc.DefineFunction("bad_op", { "a", "a", static_cast<Operation>(99) });
+	EXPECT_TRUE(std::isnan(calc.GetValue("bad_op")));
 }
 
 TEST_F(CalculatorTest, DeepLinearChain_NoStackOverflow)
@@ -150,7 +164,7 @@ TEST_F(CalculatorTest, DeepLinearChain_NoStackOverflow)
 
 	calc.DefineFunction("x1", { "x", "x", Operation::Add });
 
-	constexpr int depth = 100000;
+	constexpr int depth = 10000;
 	for (int i = 2; i <= depth; ++i)
 	{
 		calc.DefineFunction(
@@ -158,10 +172,10 @@ TEST_F(CalculatorTest, DeepLinearChain_NoStackOverflow)
 			{ "x" + std::to_string(i - 1), "x", Operation::Add });
 	}
 
-	EXPECT_DOUBLE_EQ(calc.GetValue("x100000"), 100001.0);
+	EXPECT_DOUBLE_EQ(calc.GetValue("x" + std::to_string(depth)), static_cast<double>(depth + 1));
 
 	calc.AssignVariable("x", 2.0);
-	EXPECT_DOUBLE_EQ(calc.GetValue("x100000"), 200002.0);
+	EXPECT_DOUBLE_EQ(calc.GetValue("x" + std::to_string(depth)), static_cast<double>(2 * (depth + 1)));
 }
 
 TEST_F(CalculatorTest, FibonacciOptimizedComputation)

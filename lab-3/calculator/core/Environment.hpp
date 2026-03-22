@@ -1,144 +1,135 @@
 #pragma once
 
-#include <vector>
+#include "Component.hpp"
+
+#include <map>
+#include <ranges>
 #include <string>
-#include <memory>
-#include <stack>
 #include <unordered_map>
 #include <unordered_set>
-#include <stdexcept>
+#include <vector>
 
-#include "IExpression.hpp"
-
-class Environment : public IValueProvider
+class Environment
 {
 public:
-	void SetVariable(const std::string& id, double value)
+	bool Exists(const std::string& id) const
 	{
-		m_variables[id] = value;
-		InvalidateCache();
-	}
-
-	void SetFunction(const std::string& id, std::unique_ptr<IExpression> expr)
-	{
-		m_functions[id] = std::move(expr);
-		InvalidateCache();
+		return m_cells.contains(id);
 	}
 
 	bool IsVariable(const std::string& id) const
 	{
-		return m_variables.contains(id);
+		return m_vars.contains(id);
 	}
 
 	bool IsFunction(const std::string& id) const
 	{
-		return m_functions.contains(id);
+		return m_fns.contains(id);
 	}
 
-	bool Exists(const std::string& id) const
+	void DeclareVariable(const std::string& id)
 	{
-		return IsVariable(id) || IsFunction(id);
+		m_cells.emplace(id, Cell(Number{ std::numeric_limits<double>::quiet_NaN() }));
+		m_vars.insert(id);
 	}
 
-	double GetValue(const std::string& id) override
+	void SetVariable(const std::string& id, const double value)
 	{
-		if (IsVariable(id))
+		if (!Exists(id))
 		{
-			return m_variables.at(id);
+			m_cells.emplace(id, Cell(Number{ value }));
+			m_vars.insert(id);
+		}
+		else
+		{
+			m_cells.at(id).SetValue(Number{ value });
 		}
 
-		if (IsFunction(id))
+		InvalidateDependents(id);
+	}
+
+	void DeclareFunction(const std::string& id, Component expr)
+	{
+		DependencyScanner scanner;
+		std::visit(scanner, expr);
+
+		m_cells.emplace(id, Cell(std::move(expr)));
+		m_fns.insert(id);
+
+		for (const auto& depName : scanner.deps)
 		{
-			return EvaluateFunction(id);
+			m_reverseDeps[depName].push_back(id);
+		}
+	}
+
+	double GetValue(const std::string& id) const
+	{
+		const auto it = m_cells.find(id);
+		if (it == m_cells.end())
+		{
+			return std::numeric_limits<double>::quiet_NaN();
 		}
 
-		return std::stod(id);
+		auto resolve = std::bind_front(&Environment::GetValue, this);
+		return it->second.GetValue(resolve);
 	}
 
-	void InvalidateCache()
+	const std::map<std::string, Cell>& GetCells() const
 	{
-		m_cache.clear();
+		return m_cells;
 	}
 
-	std::unordered_map<std::string, double> GetAllVariables() const
+	std::vector<std::pair<std::string, double>> GetAllVariables() const
 	{
-		return m_variables;
+		std::vector<std::pair<std::string, double>> result;
+
+		for (const auto& name : m_cells | std::views::keys)
+		{
+			if (IsVariable(name))
+			{
+				result.push_back({ name, GetValue(name) });
+			}
+		}
+
+		return result;
 	}
 
-	const std::unordered_map<std::string, std::unique_ptr<IExpression>>& GetAllFunctions() const
+	std::vector<std::pair<std::string, double>> GetAllFunctions() const
 	{
-		return m_functions;
+		std::vector<std::pair<std::string, double>> result;
+
+		for (const auto& name : m_cells | std::views::keys)
+		{
+			if (IsFunction(name))
+			{
+				result.push_back({ name, GetValue(name) });
+			}
+		}
+
+		return result;
 	}
 
 private:
-	double EvaluateFunction(const std::string& id)
+	std::map<std::string, Cell> m_cells;
+	std::unordered_set<std::string> m_vars;
+	std::unordered_set<std::string> m_fns;
+
+	std::unordered_map<std::string, std::vector<std::string>> m_reverseDeps;
+
+	void InvalidateDependents(const std::string& id)
 	{
-		if (const auto it = m_cache.find(id); it != m_cache.end())
+		if (!m_reverseDeps.contains(id))
 		{
-			return it->second;
+			return;
 		}
 
-		std::stack<std::pair<std::string, size_t>> evalStack;
-		std::unordered_set<std::string> inCurrPath;
-
-		evalStack.push({ id, 0 });
-
-		while (!evalStack.empty())
+		for (const auto& dependentId : m_reverseDeps.at(id))
 		{
-			if (!EvaluateStack(evalStack, inCurrPath))
+			if (auto& cell = m_cells.at(dependentId); cell.IsCached())
 			{
-				NodeEvaluation(evalStack, inCurrPath);
+				cell.InvalidateCache();
+				InvalidateDependents(dependentId);
 			}
 		}
-
-		return m_cache.at(id);
 	}
-
-	bool EvaluateStack(std::stack<std::pair<std::string, size_t>>& stack,
-		std::unordered_set<std::string>& path) const
-	{
-		auto& [currId, depIdx] = stack.top();
-
-		if (depIdx == 0)
-		{
-			if (path.contains(currId))
-			{
-				throw std::runtime_error("Cyclic dependency detected: " + currId);
-			}
-
-			path.insert(currId);
-		}
-
-		std::vector<std::string> deps;
-		m_functions.at(currId)->GetDependencies(deps);
-
-		for (; depIdx < deps.size(); ++depIdx)
-		{
-			if (const std::string& dep = deps[depIdx]; IsFunction(dep) && !m_cache.contains(dep))
-			{
-				depIdx++;
-				stack.push({ dep, 0 });
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	void NodeEvaluation(std::stack<std::pair<std::string, size_t>>& stack,
-		std::unordered_set<std::string>& path)
-	{
-		const std::string currentId = stack.top().first;
-		m_cache[currentId] = m_functions.at(currentId)->Evaluate(*this);
-
-		path.erase(currentId);
-		stack.pop();
-	}
-
-	std::unordered_map<std::string, double> m_variables;
-	std::unordered_map<std::string, std::unique_ptr<IExpression>> m_functions;
-
-	std::unordered_map<std::string, double> m_cache;
-	std::unordered_set<std::string> m_evaluating;
 };

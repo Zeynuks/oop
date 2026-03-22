@@ -1,12 +1,10 @@
 #pragma once
-#include "Environment.hpp"
-#include "IExpression.hpp"
 
+#include "Environment.hpp"
 #include <cctype>
-#include <limits>
-#include <ranges>
 #include <stdexcept>
-#include <unordered_map>
+#include <string>
+#include <vector>
 
 class Calculator
 {
@@ -30,7 +28,7 @@ public:
 			throw std::invalid_argument("Variable already exists: " + id);
 		}
 
-		m_env.SetVariable(id, std::numeric_limits<double>::quiet_NaN());
+		m_env.DeclareVariable(id);
 	}
 
 	void AssignVariable(const std::string& id, double value)
@@ -38,11 +36,6 @@ public:
 		if (m_env.IsFunction(id))
 		{
 			throw std::invalid_argument("Cannot assign to function: " + id);
-		}
-
-		if (!m_env.Exists(id))
-		{
-			DeclareVariable(id);
 		}
 
 		m_env.SetVariable(id, value);
@@ -65,19 +58,21 @@ public:
 			throw std::invalid_argument("Variable already exists: " + id);
 		}
 
-		if (!IsOperandValid(operand))
-		{
-			throw std::invalid_argument("Invalid operand encountered");
-		}
-
+		Component expr;
 		if (IsNumber(operand))
 		{
-			m_env.SetFunction(id, std::make_unique<NumberExpression>(std::stod(operand)));
+			expr = Number{ std::stod(operand) };
 		}
 		else
 		{
-			m_env.SetFunction(id, std::make_unique<VariableExpression>(operand));
+			if (!m_env.Exists(operand))
+			{
+				throw std::invalid_argument("Invalid operand encountered");
+			}
+			expr = Variable{ operand };
 		}
+
+		m_env.DeclareFunction(id, std::move(expr));
 	}
 
 	void DefineFunction(const std::string& id, const Function& function)
@@ -92,61 +87,50 @@ public:
 			throw std::invalid_argument("Variable already exists: " + id);
 		}
 
-		if (!IsOperandValid(function.left) || !IsOperandValid(function.right))
-		{
-			throw std::invalid_argument("Invalid operand encountered");
-		}
+		auto func = std::make_unique<::Function>(
+			CreateComponent(function.left),
+			CreateComponent(function.right),
+			function.operation);
 
-		Operation operation = MapOperation(function.operation);
-
-		m_env.SetFunction(
-			id,
-			std::make_unique<BinaryExpression>(
-				operation,
-				CreateExpression(function.left),
-				CreateExpression(function.right)));
+		m_env.DeclareFunction(id, std::move(func));
 	}
 
-	double GetValue(const std::string& id)
+	double GetValue(const std::string& id) const
 	{
+		if (!m_env.Exists(id))
+		{
+			throw std::invalid_argument("Identifier not found: " + id);
+		}
+
 		return m_env.GetValue(id);
 	}
 
-	std::unordered_map<std::string, double> GetAllVariables() const
+	std::vector<std::pair<std::string, double>> GetAllVariables() const
 	{
 		return m_env.GetAllVariables();
 	}
 
-	std::unordered_map<std::string, double> GetAllFunctions()
+	std::vector<std::pair<std::string, double>> GetAllFunctions() const
 	{
-		std::unordered_map<std::string, double> result;
-
-		for (const auto& name : m_env.GetAllFunctions() | std::views::keys)
-		{
-			result[name] = m_env.GetValue(name);
-		}
-
-		return result;
+		return m_env.GetAllFunctions();
 	}
 
 private:
 	Environment m_env;
 
-	static Operation MapOperation(Operation operation)
+	Component CreateComponent(const std::string& operand) const
 	{
-		switch (operation)
+		if (IsNumber(operand))
 		{
-		case Operation::Add:
-			return Operation::Add;
-		case Operation::Sub:
-			return Operation::Sub;
-		case Operation::Mul:
-			return Operation::Mul;
-		case Operation::Div:
-			return Operation::Div;
-		default:
-			throw std::logic_error("Undefined operation");
+			return Number{ std::stod(operand) };
 		}
+
+		if (!m_env.Exists(operand))
+		{
+			throw std::invalid_argument("Invalid operand encountered");
+		}
+
+		return Variable{ operand };
 	}
 
 	static bool IsValidVariable(const std::string& id)
@@ -167,16 +151,6 @@ private:
 		return true;
 	}
 
-	bool IsOperandValid(const std::string& operand) const
-	{
-		if (m_env.Exists(operand))
-		{
-			return true;
-		}
-
-		return IsNumber(operand);
-	}
-
 	static bool IsNumber(const std::string& string)
 	{
 		try
@@ -189,15 +163,5 @@ private:
 		{
 			return false;
 		}
-	}
-
-	static std::unique_ptr<IExpression> CreateExpression(const std::string& operand)
-	{
-		if (IsNumber(operand))
-		{
-			return std::make_unique<NumberExpression>(std::stod(operand));
-		}
-
-		return std::make_unique<VariableExpression>(operand);
 	}
 };
