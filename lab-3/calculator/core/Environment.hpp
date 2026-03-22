@@ -37,15 +37,10 @@ public:
 	{
 		if (!Exists(id))
 		{
-			m_cells.emplace(id, Cell(Number{ value }));
-			m_vars.insert(id);
-		}
-		else
-		{
-			m_cells.at(id).SetValue(Number{ value });
+			DeclareVariable(id);
 		}
 
-		InvalidateDependents(id);
+		m_cells.at(id).SetValue(Number{ value });
 	}
 
 	void DeclareFunction(const std::string& id, Component expr)
@@ -53,12 +48,16 @@ public:
 		DependencyScanner scanner;
 		std::visit(scanner, expr);
 
-		m_cells.emplace(id, Cell(std::move(expr)));
+		auto [it, inserted] = m_cells.insert_or_assign(id, Cell(std::move(expr)));
 		m_fns.insert(id);
+		Cell& newFunctionCell = it->second;
 
 		for (const auto& depName : scanner.deps)
 		{
-			m_reverseDeps[depName].push_back(id);
+			if (auto depIt = m_cells.find(depName); depIt != m_cells.end())
+			{
+				depIt->second.AddObserver(newFunctionCell);
+			}
 		}
 	}
 
@@ -113,23 +112,4 @@ private:
 	std::map<std::string, Cell> m_cells;
 	std::unordered_set<std::string> m_vars;
 	std::unordered_set<std::string> m_fns;
-
-	std::unordered_map<std::string, std::vector<std::string>> m_reverseDeps;
-
-	void InvalidateDependents(const std::string& id)
-	{
-		if (!m_reverseDeps.contains(id))
-		{
-			return;
-		}
-
-		for (const auto& dependentId : m_reverseDeps.at(id))
-		{
-			if (auto& cell = m_cells.at(dependentId); cell.IsCached())
-			{
-				cell.InvalidateCache();
-				InvalidateDependents(dependentId);
-			}
-		}
-	}
 };

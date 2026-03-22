@@ -1,11 +1,14 @@
 #pragma once
 
+#include "IObservable.hpp"
 #include "Operations.hpp"
+
 #include <cmath>
 #include <functional>
 #include <limits>
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -79,21 +82,32 @@ struct Evaluator
 
 struct DependencyScanner
 {
-	void operator()(const Number&) const {}
-	void operator()(const Variable& v) { deps.push_back(v.name); }
+	void operator()(const Number&) const
+	{
+
+	}
+
+	void operator()(const Variable& v)
+	{
+		deps.push_back(v.name);
+	}
+
 	void operator()(const std::unique_ptr<Function>& f)
 	{
 		if (!f)
 		{
 			return;
 		}
+
 		std::visit(*this, f->lhs);
 		std::visit(*this, f->rhs);
 	}
+
 	std::vector<std::string> deps;
 };
 
-class Cell
+class Cell : public IObservable
+	, public IObserver
 {
 public:
 	explicit Cell(Component value)
@@ -101,6 +115,43 @@ public:
 		, m_cache(std::numeric_limits<double>::quiet_NaN())
 		, m_isCached(false)
 	{
+	}
+
+	void OnDependencyChanged() override
+	{
+		if (m_isCached)
+		{
+			InvalidateCache();
+			NotifyObservers();
+		}
+	}
+
+	void AddObserver(IObserver& obs) override
+	{
+		const auto it = std::ranges::find_if(m_observers,
+			[&obs](auto& ref) {
+				return &ref.get() == &obs;
+			});
+
+		if (it == m_observers.end())
+		{
+			m_observers.push_back(obs);
+		}
+	}
+
+	void RemoveObserver(IObserver& obs) override
+	{
+		std::erase_if(m_observers, [&obs](auto& ref) {
+			return &ref.get() == &obs;
+		});
+	}
+
+	void NotifyObservers() override
+	{
+		for (auto& obs : m_observers)
+		{
+			obs.get().OnDependencyChanged();
+		}
 	}
 
 	double GetValue(const std::function<double(const std::string&)>& resolve) const
@@ -120,6 +171,7 @@ public:
 	{
 		m_value = std::move(value);
 		InvalidateCache();
+		NotifyObservers();
 	}
 
 	void InvalidateCache() const
@@ -128,10 +180,14 @@ public:
 		m_cache = std::numeric_limits<double>::quiet_NaN();
 	}
 
-	bool IsCached() const { return m_isCached; }
+	bool IsCached() const
+	{
+		return m_isCached;
+	}
 
 private:
 	Component m_value;
 	mutable double m_cache;
 	mutable bool m_isCached;
+	std::vector<std::reference_wrapper<IObserver>> m_observers;
 };
