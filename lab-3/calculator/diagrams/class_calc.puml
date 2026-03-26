@@ -1,0 +1,220 @@
+@startuml
+enum "Operation" as C_0006641660123948976645
+enum C_0006641660123948976645 {
+None
+Add
+Sub
+Mul
+Div
+}
+abstract "IExpression" as C_0000208546837778031819
+abstract C_0000208546837778031819 {
++~IExpression() constexpr = default : void
+..
+{abstract} +Calculate(const std::vector<double> & operandValues) const = 0 : double
+{abstract} +GetOperands() const = 0 : std::vector<std::string>
+__
+}
+class "NumberExpression" as C_0013649337721286785328
+class C_0013649337721286785328 {
++NumberExpression(double value) : void
+..
++Calculate(const std::vector<double> & values) const : double
++GetOperands() const : std::vector<std::string>
+__
+-m_value : double
+}
+class "VariableExpression" as C_0011682165951505853775
+class C_0011682165951505853775 {
++VariableExpression(std::string id) : void
+..
++Calculate(const std::vector<double> & values) const : double
++GetOperands() const : std::vector<std::string>
+__
+-m_id : std::string
+}
+class "BinaryExpression" as C_0015488780215229289052
+class C_0015488780215229289052 {
++BinaryExpression(Operation operation, std::string left, std::string right) : void
+..
++Calculate(const std::vector<double> & values) const : double
++GetOperands() const : std::vector<std::string>
+__
+-m_leftId : std::string
+-m_operation : Operation
+-m_rightId : std::string
+}
+class "Environment" as C_0014462386859944010619
+class C_0014462386859944010619 {
++ClearCache() : void
++Exists(const std::string & id) const : bool
+-FillEvaluationCache(const std::string & rootId) : void
++GetAllFunctions() const : const std::unordered_map<std::string,std::shared_ptr<IExpression>> &
++GetAllVariables() const : const std::unordered_map<std::string,double> &
++GetValue(const std::string & id) : double
++IsFunction(const std::string & id) const : bool
++IsVariable(const std::string & id) const : bool
++SetFunction(const std::string & id, std::shared_ptr<IExpression> expr) : void
++SetVariable(const std::string & id, double val) : void
+__
+-m_cache : std::unordered_map<std::string,double>
+-m_functions : std::unordered_map<std::string,std::shared_ptr<IExpression>>
+-m_variables : std::unordered_map<std::string,double>
+}
+class "Calculator" as C_0009337884186000468995
+class C_0009337884186000468995 {
++AssignVariable(const std::string & id, double value) : void
++AssignVariable(const std::string & id1, const std::string & id2) : void
++DeclareVariable(const std::string & id) : void
++DefineFunction(const std::string & id, const std::string & operand) : void
++DefineFunction(const std::string & id, const Function & function) : void
++GetAllFunctions() : std::unordered_map<std::string,double>
++GetAllVariables() const : const std::unordered_map<std::string,double> &
++GetValue(const std::string & id) : double
+-IsOperandValid(const std::string & op) const : bool
+{static} -IsValidVariable(const std::string & id) : bool
+{static} -MapOperation(Operation operation) : Operation
+__
+-m_env : Environment
+}
+class "Calculator::Function" as C_0001583682743642096205
+class C_0001583682743642096205 {
+__
++left : std::string
++operation : Operation
++right : std::string
+}
+abstract "ICommand" as C_0002676627159612885501
+abstract C_0002676627159612885501 {
++~ICommand() constexpr = default : void
+..
+{abstract} +Execute() = 0 : void
++ParseArgs(const std::vector<std::string> &) : void
+__
+}
+class "Menu" as C_0001585106001913427481
+class C_0001585106001913427481 {
++AddItem(const std::string & shortcut, const std::string & description, std::unique_ptr<ICommand> && command) : void
+-ExecuteCommand(const std::string & line) : bool
++Exit() : void
+{static} -ParseLine(const std::string & line) : std::pair<std::string,std::vector<std::string>>
++Run() : void
++ShowInstructions() const : void
+__
+-m_exit : bool
+-m_items : std::vector<Item>
+}
+class "Menu::Item" as C_0016052373628440326051
+class C_0016052373628440326051 {
++Item(std::string shortcut, std::string description, std::unique_ptr<ICommand> && command) : void
+__
++command : std::unique_ptr<ICommand>
++description : std::string
++shortcut : std::string
+}
+class "AssignVariableCommand" as C_0000999750656843827368
+class C_0000999750656843827368 {
++AssignVariableCommand(Calculator & calc) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+__
+-m_calc : Calculator &
+-m_id1 : std::string
+-m_valueOrId2 : std::string
+}
+class "DeclareVariableCommand" as C_0009479930912417388004
+class C_0009479930912417388004 {
++DeclareVariableCommand(Calculator & calc) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+__
+-m_calc : Calculator &
+-m_id : std::string
+}
+class "DefineFunctionCommand" as C_0011756325460650814258
+class C_0011756325460650814258 {
++DefineFunctionCommand(Calculator & calc) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+{static} -ParseOperation(const std::string & operation) : Operation
+__
+-m_calc : Calculator &
+-m_fnId : std::string
+-m_leftId : std::string
+-m_op : Operation
+-m_rightId : std::string
+}
+class "ExitMenuCommand" as C_0017895071097438880981
+class C_0017895071097438880981 {
++ExitMenuCommand(Menu & menu) : void
+..
++Execute() : void
+__
+-m_menu : Menu &
+}
+class "PrintCommand" as C_0007269878669851415167
+class C_0007269878669851415167 {
++PrintCommand(Calculator & calc, std::ostream & out) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+__
+-m_calc : Calculator &
+-m_id : std::string
+-m_out : std::ostream &
+}
+class "PrintFunctionCommand" as C_0016621280942277855536
+class C_0016621280942277855536 {
++PrintFunctionCommand(Calculator & calc, std::ostream & out) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+__
+-m_calc : Calculator &
+-m_out : std::ostream &
+}
+class "PrintVariablesCommand" as C_0001039951881922438347
+class C_0001039951881922438347 {
++PrintVariablesCommand(Calculator & calc, std::ostream & out) : void
+..
++Execute() : void
++ParseArgs(const std::vector<std::string> & args) : void
+__
+-m_calc : Calculator &
+-m_out : std::ostream &
+}
+C_0000208546837778031819 <|-- C_0013649337721286785328
+C_0000208546837778031819 <|-- C_0011682165951505853775
+C_0015488780215229289052 o-- C_0006641660123948976645 : -m_operation
+C_0000208546837778031819 <|-- C_0015488780215229289052
+C_0014462386859944010619 o-- C_0000208546837778031819 : -m_functions
+C_0009337884186000468995 ..> C_0001583682743642096205
+C_0009337884186000468995 ..> C_0006641660123948976645
+C_0009337884186000468995 o-- C_0014462386859944010619 : -m_env
+C_0001583682743642096205 --+ C_0009337884186000468995
+C_0001583682743642096205 o-- C_0006641660123948976645 : +operation
+C_0001585106001913427481 ..> C_0002676627159612885501
+C_0016052373628440326051 --+ C_0001585106001913427481
+C_0016052373628440326051 o-- C_0002676627159612885501 : +command
+C_0000999750656843827368 --> C_0009337884186000468995 : -m_calc
+C_0002676627159612885501 <|-- C_0000999750656843827368
+C_0009479930912417388004 --> C_0009337884186000468995 : -m_calc
+C_0002676627159612885501 <|-- C_0009479930912417388004
+C_0011756325460650814258 --> C_0009337884186000468995 : -m_calc
+C_0011756325460650814258 o-- C_0006641660123948976645 : -m_op
+C_0002676627159612885501 <|-- C_0011756325460650814258
+C_0017895071097438880981 --> C_0001585106001913427481 : -m_menu
+C_0002676627159612885501 <|-- C_0017895071097438880981
+C_0007269878669851415167 --> C_0009337884186000468995 : -m_calc
+C_0002676627159612885501 <|-- C_0007269878669851415167
+C_0016621280942277855536 --> C_0009337884186000468995 : -m_calc
+C_0002676627159612885501 <|-- C_0016621280942277855536
+C_0001039951881922438347 --> C_0009337884186000468995 : -m_calc
+C_0002676627159612885501 <|-- C_0001039951881922438347
+
+'Generated with clang-uml, version 0.6.2-27-g4e76f03
+'LLVM version clang version 19.1.7 (Fedora 19.1.7-5.fc41)
+@enduml
