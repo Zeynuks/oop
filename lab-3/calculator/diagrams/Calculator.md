@@ -42,8 +42,8 @@ classDiagram
 
     class Cell {
         -Component m_value
-        -mutable double m_cache
-        -mutable bool m_isCached
+        -double m_cache
+        -bool m_isCached
         -vector~reference_wrapper~IObserver~~ m_observers
         +GetValue(resolve) double
         +SetValue(value: Component) void

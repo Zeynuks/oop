@@ -61,7 +61,7 @@ public:
 		}
 	}
 
-	double GetValue(const std::string& id) const
+	double GetValue(const std::string& id)
 	{
 		const auto it = m_cells.find(id);
 		if (it == m_cells.end())
@@ -78,7 +78,7 @@ public:
 		return m_cells;
 	}
 
-	std::vector<std::pair<std::string, double>> GetAllVariables() const
+	std::vector<std::pair<std::string, double>> GetAllVariables()
 	{
 		std::vector<std::pair<std::string, double>> result;
 
@@ -93,7 +93,7 @@ public:
 		return result;
 	}
 
-	std::vector<std::pair<std::string, double>> GetAllFunctions() const
+	std::vector<std::pair<std::string, double>> GetAllFunctions()
 	{
 		std::vector<std::pair<std::string, double>> result;
 

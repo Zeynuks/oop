@@ -95,7 +95,7 @@ public:
 		m_env.DeclareFunction(id, std::move(func));
 	}
 
-	double GetValue(const std::string& id) const
+	double GetValue(const std::string& id)
 	{
 		if (!m_env.Exists(id))
 		{
@@ -105,12 +105,12 @@ public:
 		return m_env.GetValue(id);
 	}
 
-	std::vector<std::pair<std::string, double>> GetAllVariables() const
+	std::vector<std::pair<std::string, double>> GetAllVariables()
 	{
 		return m_env.GetAllVariables();
 	}
 
-	std::vector<std::pair<std::string, double>> GetAllFunctions() const
+	std::vector<std::pair<std::string, double>> GetAllFunctions()
 	{
 		return m_env.GetAllFunctions();
 	}

@@ -154,7 +154,7 @@ public:
 		}
 	}
 
-	double GetValue(const std::function<double(const std::string&)>& resolve) const
+	double GetValue(const std::function<double(const std::string&)>& resolve)
 	{
 		if (m_isCached)
 		{
@@ -174,7 +174,7 @@ public:
 		NotifyObservers();
 	}
 
-	void InvalidateCache() const
+	void InvalidateCache()
 	{
 		m_isCached = false;
 		m_cache = std::numeric_limits<double>::quiet_NaN();
@@ -187,7 +187,7 @@ public:
 
 private:
 	Component m_value;
-	mutable double m_cache;
-	mutable bool m_isCached;
+	double m_cache;
+	bool m_isCached;
 	std::vector<std::reference_wrapper<IObserver>> m_observers;
 };
