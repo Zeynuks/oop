@@ -1,0 +1,57 @@
+@startuml
+class "Entry" as C_0017816753864790068538
+class C_0017816753864790068538 {
+__
++translations : std::unordered_set<Entry *>
++word : std::string
+}
+abstract "IStorage" as C_0014559638252573542318
+abstract C_0014559638252573542318 {
++~IStorage() constexpr = default : void
+..
+{abstract} +Add(const std::string & word) = 0 : Entry *
+{abstract} +Get(const std::string & word) const = 0 : Entry *
+{abstract} +Load(const std::deque<EntryDto> & dtos) = 0 : void
+{abstract} +Upload() const = 0 : std::deque<EntryDto>
+__
+}
+class "Dictionary" as C_0010392971394332670290
+class C_0010392971394332670290 {
++Dictionary(IStorage & storage) : void
+..
++AddWord(const std::string & word) const : void
++AddWord(const std::string & word, const std::string & translation) const : void
++GetTranslations(const std::string & word) const : std::unordered_set<std::string>
+{static} -Normalize(const std::string & word) : std::string
+__
+-m_storage : IStorage &
+}
+class "InMemoryStorage" as C_0018024538158180787095
+class C_0018024538158180787095 {
++Add(const std::string & word) : Entry *
++Get(const std::string & word) const : Entry *
++Load(const std::deque<EntryDto> & dtos) : void
++Upload() const : std::deque<EntryDto>
+__
+-m_entries : std::vector<std::unique_ptr<Entry>>
+-m_wordIndex : std::unordered_map<std::string,Entry *>
+}
+class "Loader" as C_0012458539827136532111
+class C_0012458539827136532111 {
++Loader(std::string filename) : void
+..
++LoadData() const : std::deque<EntryDto>
++SaveData(std::deque<EntryDto> & dtos) const : void
+__
+-m_filename : std::string
+}
+C_0017816753864790068538 --> C_0017816753864790068538 : +translations
+C_0014559638252573542318 ..> C_0017816753864790068538
+C_0010392971394332670290 --> C_0014559638252573542318 : -m_storage
+C_0018024538158180787095 --> C_0017816753864790068538 : -m_wordIndex
+C_0018024538158180787095 o-- C_0017816753864790068538 : -m_entries
+C_0014559638252573542318 <|-- C_0018024538158180787095
+
+'Generated with clang-uml, version 0.6.2-27-g4e76f03
+'LLVM version clang version 19.1.7 (Fedora 19.1.7-5.fc41)
+@enduml

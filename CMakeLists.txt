@@ -10,4 +10,6 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 add_subdirectory(extern/benchmark)
 
 add_subdirectory(lab-1)
+add_subdirectory(lab-2)
 add_subdirectory(lab-3)
+add_subdirectory(lab-4)

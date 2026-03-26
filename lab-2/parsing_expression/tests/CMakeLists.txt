@@ -1,0 +1,5 @@
+add_executable(parsing_expression_tests tests.cpp)
+
+target_link_libraries(parsing_expression_tests gtest_main parsing_expression_lib)
+
+add_test(NAME ParsingExpressionTests COMMAND parsing_expression_tests)
