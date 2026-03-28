@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ICanvas.hpp"
-#include "ShapeController.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <memory>
