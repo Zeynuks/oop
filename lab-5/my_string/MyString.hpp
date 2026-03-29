@@ -104,11 +104,11 @@ public:
 
 	// оператор трехстороннего сравнения (космический корабль)
 	// автоматически генерирует операторы <, <=, >, >=
-	std::strong_ordering operator<=>(const MyString& other) const = default;
+	[[nodiscard]] std::strong_ordering operator<=>(const MyString& other) const = default;
 
 	// оператор проверки на равенство
 	// реализуется отдельно для оптимизации производительности
-	bool operator==(const MyString& other) const
+	[[nodiscard]] bool operator==(const MyString& other) const
 	{
 		return m_data == other.m_data;
 	}
@@ -139,21 +139,21 @@ public:
 	}
 
 	// оператор конкатенации двух строк MyString
-	friend MyString operator+(MyString lhs, const MyString& rhs)
+	[[nodiscard]] friend MyString operator+(MyString lhs, const MyString& rhs)
 	{
 		lhs += rhs;
 		return lhs;
 	}
 
 	// оператор конкатенации строки MyString и стандартной строки std::string
-	friend MyString operator+(MyString lhs, const std::string& rhs)
+	[[nodiscard]] friend MyString operator+(MyString lhs, const std::string& rhs)
 	{
 		lhs += rhs;
 		return lhs;
 	}
 
 	// оператор конкатенации стандартной строки std::string и строки MyString
-	friend MyString operator+(const std::string& lhs, const MyString& rhs)
+	[[nodiscard]] friend MyString operator+(const std::string& lhs, const MyString& rhs)
 	{
 		MyString result(lhs);
 		result += rhs;
@@ -161,14 +161,14 @@ public:
 	}
 
 	// оператор конкатенации строки MyString и символьного массива (C-строки)
-	friend MyString operator+(MyString lhs, const char* rhs)
+	[[nodiscard]] friend MyString operator+(MyString lhs, const char* rhs)
 	{
 		lhs += rhs;
 		return lhs;
 	}
 
 	// оператор конкатенации символьного массива (C-строки) и строки MyString
-	friend MyString operator+(const char* lhs, const MyString& rhs)
+	[[nodiscard]] friend MyString operator+(const char* lhs, const MyString& rhs)
 	{
 		MyString result(lhs);
 		result += rhs;
@@ -177,7 +177,7 @@ public:
 
 	// оператор доступа к символу по индексу для чтения
 	// возвращает копию символа по заданному смещению
-	char operator[](const size_t index) const
+	[[nodiscard]] char operator[](const size_t index) const
 	{
 		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
@@ -185,7 +185,7 @@ public:
 
 	// оператор доступа к символу по индексу для записи
 	// возвращает ссылку на символ, позволяя изменять содержимое строки
-	char& operator[](const size_t index)
+	[[nodiscard]] char& operator[](const size_t index)
 	{
 		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
@@ -198,7 +198,7 @@ public:
 	}
 
 	// возвращает длину строки (без учета завершающего нулевого символа)
-	size_t GetLength() const
+	[[nodiscard]] constexpr size_t GetLength() const
 	{
 		return m_data.Size() > 0 ? m_data.Size() - 1 : 0;
 	}
@@ -206,13 +206,13 @@ public:
 	// возвращает указатель на массив символов строки
 	// в конце массива обязательно должен быть завершающий нулевой символ
 	// даже если строка пустая
-	const char* GetStringData() const
+	[[nodiscard]] const char* GetStringData() const
 	{
 		return &m_data.Front();
 	}
 
 	// возвращает подстроку с заданной позиции длиной не больше length символов
-	MyString SubString(const size_t start, const size_t length = SIZE_MAX) const
+	[[nodiscard]] MyString SubString(const size_t start, const size_t length = SIZE_MAX) const
 	{
 		const size_t currentLen = GetLength();
 		if (start > currentLen)
@@ -239,7 +239,7 @@ public:
 	}
 
 	// Возвращает вместимость строки
-	size_t GetCapacity() const
+	[[nodiscard]] constexpr size_t GetCapacity() const
 	{
 		return m_data.Capacity() > 0 ? m_data.Capacity() - 1 : 0;
 	}
@@ -292,84 +292,84 @@ public:
 
 	// возвращает итератор,
 	// указывающий на первый символ строки
-	Iterator begin() noexcept
+	[[nodiscard]] constexpr Iterator begin() noexcept
 	{
 		return m_data.begin();
 	}
 
 	// возвращает итератор,
 	// указывающий на позицию после последнего символа строки
-	Iterator end() noexcept
+	[[nodiscard]] constexpr Iterator end() noexcept
 	{
 		return m_data.begin() + GetLength();
 	}
 
 	// возвращает константный итератор,
 	// указывающий на первый символ строки
-	ConstIterator begin() const noexcept
+	[[nodiscard]] constexpr ConstIterator begin() const noexcept
 	{
 		return m_data.cbegin();
 	}
 
 	// возвращает константный итератор,
 	// указывающий на позицию после последнего символа строки
-	ConstIterator end() const noexcept
+	[[nodiscard]] constexpr ConstIterator end() const noexcept
 	{
 		return m_data.cbegin() + GetLength();
 	}
 
 	// возвращает константный итератор,
 	// указывающий на первый символ строки
-	ConstIterator cbegin() const noexcept
+	[[nodiscard]] constexpr ConstIterator cbegin() const noexcept
 	{
 		return m_data.cbegin();
 	}
 
 	// возвращает константный итератор,
 	// указывающий на позицию после последнего символа строки
-	ConstIterator cend() const noexcept
+	[[nodiscard]] constexpr ConstIterator cend() const noexcept
 	{
 		return m_data.cbegin() + GetLength();
 	}
 
 	// возвращает обратный итератор,
 	// указывающий на последний символ строки
-	ReverseIterator rbegin() noexcept
+	[[nodiscard]] constexpr ReverseIterator rbegin() noexcept
 	{
 		return ReverseIterator(end());
 	}
 
 	// возвращает обратный итератор,
 	// указывающий на позицию перед первым символом строки
-	ReverseIterator rend() noexcept
+	[[nodiscard]] constexpr ReverseIterator rend() noexcept
 	{
 		return ReverseIterator(begin());
 	}
 
 	// возвращает константный обратный итератор,
 	// указывающий на последний символ строки
-	ConstReverseIterator rbegin() const noexcept
+	[[nodiscard]] constexpr ConstReverseIterator rbegin() const noexcept
 	{
 		return ConstReverseIterator(end());
 	}
 
 	// возвращает константный обратный итератор,
 	// указывающий на позицию перед первым символом строки
-	ConstReverseIterator rend() const noexcept
+	[[nodiscard]] constexpr ConstReverseIterator rend() const noexcept
 	{
 		return ConstReverseIterator(begin());
 	}
 
 	// возвращает константный обратный итератор,
 	// указывающий на последний символ строки
-	ConstReverseIterator crbegin() const noexcept
+	[[nodiscard]] constexpr ConstReverseIterator crbegin() const noexcept
 	{
 		return ConstReverseIterator(cend());
 	}
 
 	// возвращает константный обратный итератор,
 	// указывающий на позицию перед первым символом строки
-	ConstReverseIterator crend() const noexcept
+	[[nodiscard]] constexpr ConstReverseIterator crend() const noexcept
 	{
 		return ConstReverseIterator(cbegin());
 	}
