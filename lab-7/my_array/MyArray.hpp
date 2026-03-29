@@ -1,8 +1,9 @@
 #pragma once
 
+#include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <iterator>
-#include <limits>
 #include <stdexcept>
 
 template <typename T, typename Allocator = std::allocator<T>>
@@ -43,6 +44,22 @@ public:
 		other.m_capacity = 0;
 	}
 
+	constexpr MyArray(std::initializer_list<T> list, const Allocator& alloc = Allocator())
+		: m_allocator(alloc)
+	{
+		Reserve(list.size());
+		for (const auto& item : list)
+		{
+			PushBack(item);
+		}
+	}
+
+	constexpr MyArray& operator=(std::initializer_list<T> list)
+	{
+		Assign(list.begin(), list.end());
+		return *this;
+	}
+
 	constexpr MyArray& operator=(const MyArray& other)
 	{
 		if (this != &other)
@@ -77,13 +94,27 @@ public:
 		return *this;
 	}
 
+	[[nodiscard]] constexpr auto operator<=>(const MyArray& other) const
+	{
+		return std::lexicographical_compare_three_way(
+			begin(), end(),
+			other.begin(), other.end());
+	}
+
+	[[nodiscard]] constexpr bool operator==(const MyArray& other) const
+	{
+		return std::equal(begin(), end(), other.begin(), other.end());
+	}
+
 	constexpr T& operator[](std::size_t index)
 	{
+		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
 	}
 
 	constexpr const T& operator[](std::size_t index) const
 	{
+		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
 	}
 
@@ -118,21 +149,25 @@ public:
 
 	[[nodiscard]] constexpr T& Front()
 	{
+		assert(!Empty() && "Method called on empty array");
 		return m_data[0];
 	}
 
 	[[nodiscard]] constexpr const T& Front() const
 	{
+		assert(!Empty() && "Method called on empty array");
 		return m_data[0];
 	}
 
 	[[nodiscard]] constexpr T& Back()
 	{
+		assert(!Empty() && "Method called on empty array");
 		return m_data[m_size - 1];
 	}
 
 	[[nodiscard]] constexpr const T& Back() const
 	{
+		assert(!Empty() && "Method called on empty array");
 		return m_data[m_size - 1];
 	}
 
@@ -391,6 +426,14 @@ public:
 		}
 	}
 
+	constexpr void Swap(MyArray& other) noexcept
+	{
+		std::swap(m_data, other.m_data);
+		std::swap(m_size, other.m_size);
+		std::swap(m_capacity, other.m_capacity);
+		std::swap(m_allocator, other.m_allocator);
+	}
+
 	[[nodiscard]] constexpr Iterator begin() noexcept
 	{
 		return Iterator(m_data);
@@ -399,6 +442,16 @@ public:
 	[[nodiscard]] constexpr Iterator end() noexcept
 	{
 		return Iterator(m_data + m_size);
+	}
+
+	[[nodiscard]] constexpr ConstIterator begin() const noexcept
+	{
+		return cbegin();
+	}
+
+	[[nodiscard]] constexpr ConstIterator end() const noexcept
+	{
+		return cend();
 	}
 
 	[[nodiscard]] constexpr ConstIterator cbegin() const noexcept
@@ -419,6 +472,16 @@ public:
 	[[nodiscard]] constexpr ReverseIterator rend() noexcept
 	{
 		return ReverseIterator(begin());
+	}
+
+	[[nodiscard]] constexpr ConstReverseIterator rbegin() const noexcept
+	{
+		return crbegin();
+	}
+
+	[[nodiscard]] constexpr ConstReverseIterator rend() const noexcept
+	{
+		return crend();
 	}
 
 	[[nodiscard]] constexpr ConstReverseIterator crbegin() const noexcept
