@@ -16,13 +16,16 @@ public:
 	using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
 	using AllocatorTrails = std::allocator_traits<Allocator>;
 
+	// конструктор по умолчанию
 	constexpr MyArray() noexcept = default;
 
+	// конструктор, принимающий пользовательский аллокатор
 	constexpr explicit MyArray(const Allocator& alloc) noexcept
 		: m_allocator(alloc)
 	{
 	}
 
+	// конструктор копирования
 	constexpr MyArray(const MyArray& other)
 		: m_allocator(AllocatorTrails::select_on_container_copy_construction(other.m_allocator))
 	{
@@ -33,6 +36,7 @@ public:
 		}
 	}
 
+	// перемещающий конструктор
 	constexpr MyArray(MyArray&& other) noexcept
 		: m_data(other.m_data)
 		, m_size(other.m_size)
@@ -44,6 +48,7 @@ public:
 		other.m_capacity = 0;
 	}
 
+	// конструктор, инициализирующий массив элементами из списка инициализации
 	constexpr MyArray(std::initializer_list<T> list, const Allocator& alloc = Allocator())
 		: m_allocator(alloc)
 	{
@@ -54,12 +59,14 @@ public:
 		}
 	}
 
+	// оператор присваивания списка инициализации
 	constexpr MyArray& operator=(std::initializer_list<T> list)
 	{
 		Assign(list.begin(), list.end());
 		return *this;
 	}
 
+	// копирующий оператор присваивания (использует идиому copy-and-swap)
 	constexpr MyArray& operator=(const MyArray& other)
 	{
 		if (this != &other)
@@ -71,6 +78,7 @@ public:
 		return *this;
 	}
 
+	// перемещающий оператор присваивания
 	constexpr MyArray& operator=(MyArray&& other) noexcept
 	{
 		if (this != &other)
@@ -94,6 +102,7 @@ public:
 		return *this;
 	}
 
+	// оператор трехстороннего сравнения (космический корабль)
 	[[nodiscard]] constexpr auto operator<=>(const MyArray& other) const
 	{
 		return std::lexicographical_compare_three_way(
@@ -101,23 +110,27 @@ public:
 			other.begin(), other.end());
 	}
 
+	// оператор проверки на равенство
 	[[nodiscard]] constexpr bool operator==(const MyArray& other) const
 	{
 		return std::equal(begin(), end(), other.begin(), other.end());
 	}
 
+	// оператор доступа к элементу по индексу для чтения и записи
 	constexpr T& operator[](std::size_t index)
 	{
 		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
 	}
 
+	// оператор доступа к элементу по индексу для чтения (константный)
 	constexpr const T& operator[](std::size_t index) const
 	{
 		assert(index <= GetLength() && "Index out of bounds");
 		return m_data[index];
 	}
 
+	// деструктор класса - уничтожает созданные объекты и освобождает память
 	constexpr ~MyArray()
 	{
 		Clear();
@@ -127,6 +140,7 @@ public:
 		}
 	}
 
+	// безопасный доступ к элементу по индексу с проверкой границ (для записи)
 	[[nodiscard]] constexpr T& At(std::size_t index)
 	{
 		if (index >= m_size)
@@ -137,6 +151,7 @@ public:
 		return m_data[index];
 	}
 
+	// безопасный доступ к элементу по индексу с проверкой границ (для чтения)
 	[[nodiscard]] constexpr const T& At(std::size_t index) const
 	{
 		if (index >= m_size)
@@ -147,45 +162,53 @@ public:
 		return m_data[index];
 	}
 
+	// возвращает ссылку на первый элемент массива
 	[[nodiscard]] constexpr T& Front()
 	{
 		assert(!Empty() && "Method called on empty array");
 		return m_data[0];
 	}
 
+	// возвращает константную ссылку на первый элемент массива
 	[[nodiscard]] constexpr const T& Front() const
 	{
 		assert(!Empty() && "Method called on empty array");
 		return m_data[0];
 	}
 
+	// возвращает ссылку на последний элемент массива
 	[[nodiscard]] constexpr T& Back()
 	{
 		assert(!Empty() && "Method called on empty array");
 		return m_data[m_size - 1];
 	}
 
+	// возвращает константную ссылку на последний элемент массива
 	[[nodiscard]] constexpr const T& Back() const
 	{
 		assert(!Empty() && "Method called on empty array");
 		return m_data[m_size - 1];
 	}
 
+	// проверяет, пуст ли массив
 	[[nodiscard]] constexpr bool Empty() const noexcept
 	{
 		return m_size == 0;
 	}
 
+	// возвращает текущее количество элементов в массиве
 	[[nodiscard]] constexpr std::size_t Size() const noexcept
 	{
 		return m_size;
 	}
 
+	// возвращает текущую вместимость массива
 	[[nodiscard]] constexpr std::size_t Capacity() const noexcept
 	{
 		return m_capacity;
 	}
 
+	// уничтожает все элементы массива, не освобождая память
 	constexpr void Clear() noexcept
 	{
 		for (std::size_t i = 0; i < m_size; ++i)
@@ -196,6 +219,7 @@ public:
 		m_size = 0;
 	}
 
+	// добавляет копию элемента в конец массива
 	constexpr void PushBack(const T& value)
 	{
 		if (m_size == m_capacity)
@@ -207,6 +231,7 @@ public:
 		m_size++;
 	}
 
+	// перемещает элемент в конец массива
 	constexpr void PushBack(T&& value)
 	{
 		if (m_size == m_capacity)
@@ -218,6 +243,7 @@ public:
 		m_size++;
 	}
 
+	// конструирует элемент непосредственно в конце массива
 	template <typename... Args>
 	constexpr T& EmplaceBack(Args&&... args)
 	{
@@ -233,6 +259,7 @@ public:
 		return *ptr;
 	}
 
+	// удаляет последний элемент массива
 	constexpr void PopBack()
 	{
 		if (m_size > 0)
@@ -242,6 +269,7 @@ public:
 		}
 	}
 
+	// вставляет элемент по указанной позиции и возвращает итератор на него
 	[[nodiscard]] constexpr Iterator Insert(Iterator pos, const T& value)
 	{
 		std::size_t index = pos - begin();
@@ -270,6 +298,7 @@ public:
 		return m_data + index;
 	}
 
+	// удаляет элемент по указанной позиции и возвращает итератор на следующий
 	[[nodiscard]] constexpr Iterator Erase(Iterator pos)
 	{
 		std::size_t index = pos - begin();
@@ -289,6 +318,7 @@ public:
 		return m_data + index;
 	}
 
+	// удаляет диапазон элементов [itFirst, itLast)
 	[[nodiscard]] constexpr Iterator Erase(Iterator itFirst, Iterator itLast)
 	{
 		if (itFirst == itLast)
@@ -315,6 +345,7 @@ public:
 		return m_data + firstIdx;
 	}
 
+	// резервирует память для хранения как минимум newCapacity элементов
 	constexpr void Reserve(std::size_t newCapacity)
 	{
 		if (newCapacity <= m_capacity)
@@ -339,6 +370,7 @@ public:
 		m_capacity = newCapacity;
 	}
 
+	// освобождает неиспользуемую выделенную память, подгоняя вместимость под размер
 	constexpr void ShrinkToFit()
 	{
 		if (m_size < m_capacity)
@@ -365,6 +397,7 @@ public:
 		}
 	}
 
+	// изменяет размер массива до заданного (создавая дефолтные элементы или удаляя лишние)
 	constexpr void Resize(const std::size_t newSize)
 	{
 		if (newSize < m_size)
@@ -385,6 +418,7 @@ public:
 		m_size = newSize;
 	}
 
+	// изменяет размер массива до заданного, заполняя новые элементы копиями value
 	constexpr void Resize(const std::size_t newSize, const T& value)
 	{
 		if (newSize < m_size)
@@ -406,6 +440,7 @@ public:
 		m_size = newSize;
 	}
 
+	// заменяет содержимое массива элементами из диапазона итераторов
 	template <std::input_iterator InputIterator>
 	constexpr void Assign(InputIterator first, InputIterator last)
 	{
@@ -416,6 +451,7 @@ public:
 		}
 	}
 
+	// заменяет содержимое массива заданным количеством копий value
 	constexpr void Assign(const std::size_t count, const T& value)
 	{
 		Clear();
@@ -426,6 +462,7 @@ public:
 		}
 	}
 
+	// обменивает содержимое двух массивов
 	constexpr void Swap(MyArray& other) noexcept
 	{
 		std::swap(m_data, other.m_data);
@@ -434,61 +471,85 @@ public:
 		std::swap(m_allocator, other.m_allocator);
 	}
 
+	// возвращает итератор,
+	// указывающий на первый элемент
 	[[nodiscard]] constexpr Iterator begin() noexcept
 	{
 		return Iterator(m_data);
 	}
 
+	// возвращает итератор,
+	// указывающий на позицию после последнего элемента
 	[[nodiscard]] constexpr Iterator end() noexcept
 	{
 		return Iterator(m_data + m_size);
 	}
 
+	// возвращает константный итератор,
+	// указывающий на первый элемент
 	[[nodiscard]] constexpr ConstIterator begin() const noexcept
 	{
 		return cbegin();
 	}
 
+	// возвращает константный итератор,
+	// указывающий на позицию после последнего элемента
 	[[nodiscard]] constexpr ConstIterator end() const noexcept
 	{
 		return cend();
 	}
 
+	// возвращает константный итератор,
+	// указывающий на первый элемент
 	[[nodiscard]] constexpr ConstIterator cbegin() const noexcept
 	{
 		return ConstIterator(m_data);
 	}
 
+	// возвращает константный итератор,
+	// указывающий на позицию после последнего элемента
 	[[nodiscard]] constexpr ConstIterator cend() const noexcept
 	{
 		return ConstIterator(m_data + m_size);
 	}
 
+	// возвращает обратный итератор,
+	// указывающий на последний элемент
 	[[nodiscard]] constexpr ReverseIterator rbegin() noexcept
 	{
 		return ReverseIterator(end());
 	}
 
+	// возвращает обратный итератор,
+	// указывающий на позицию перед первым элементом
 	[[nodiscard]] constexpr ReverseIterator rend() noexcept
 	{
 		return ReverseIterator(begin());
 	}
 
+	// возвращает константный обратный итератор,
+	// указывающий на последний элемент
 	[[nodiscard]] constexpr ConstReverseIterator rbegin() const noexcept
 	{
 		return crbegin();
 	}
 
+	// возвращает константный обратный итератор,
+	// указывающий на позицию перед первым элементом
 	[[nodiscard]] constexpr ConstReverseIterator rend() const noexcept
 	{
 		return crend();
 	}
 
+	// возвращает константный обратный итератор,
+	// указывающий на последний элемент
 	[[nodiscard]] constexpr ConstReverseIterator crbegin() const noexcept
 	{
 		return ConstReverseIterator(end());
 	}
 
+	// возвращает константный обратный итератор,
+	// указывающий на позицию перед первым элементом
 	[[nodiscard]] constexpr ConstReverseIterator crend() const noexcept
 	{
 		return ConstReverseIterator(begin());
