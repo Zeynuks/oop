@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <string>
 
+//todo тесты с массивом std::string
 TEST(MyArrayConstructors, DefaultConstructor) {
 	constexpr MyArray<int> arr;
 
