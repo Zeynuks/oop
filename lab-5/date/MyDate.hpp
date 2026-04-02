@@ -35,28 +35,28 @@ enum class WeekDay
 	Saturday
 };
 
-//TODO unsigned to uint64_t
 class MyDate
 {
 private:
-	unsigned daysEpoch = 719'468;
-	unsigned maxEpochDays = 2'932'896;
+	static constexpr uint64_t daysEpoch = 719'468;
+	static constexpr uint64_t maxEpochDays = 2'932'896;
+
 public:
-	constexpr MyDate(const unsigned day, const Month month, const unsigned year)
+	constexpr MyDate(const uint64_t day, const Month month, const uint64_t year)
 	{
-		const auto unsignedMonth = static_cast<unsigned>(month);
-		IsValid(day, unsignedMonth, year);
-		m_epochDays = FromDate(day, unsignedMonth, year);
+		const auto convertedMonth = static_cast<uint64_t>(month);
+		IsValid(day, convertedMonth, year);
+		m_epochDays = FromDate(day, convertedMonth, year);
 	}
 
-	constexpr MyDate(const unsigned day, const unsigned month, const unsigned year)
+	constexpr MyDate(const uint64_t day, const uint64_t month, const uint64_t year)
 	{
 		IsValid(day, month, year);
 		m_epochDays = FromDate(day, month, year);
 	}
 
-	//подумать как измбежать неявного преобразования типов
-	constexpr explicit MyDate(const unsigned epochDays)
+	// подумать как измбежать неявного преобразования типов
+	constexpr explicit MyDate(const uint64_t epochDays)
 	{
 		IsEpochInRange(epochDays);
 		m_epochDays = epochDays;
@@ -64,7 +64,7 @@ public:
 
 	constexpr MyDate() = default;
 
-	[[nodiscard]] constexpr unsigned GetDay() const
+	[[nodiscard]] constexpr uint64_t GetDay() const
 	{
 		auto [day, month, year] = ToDate(m_epochDays);
 		return day;
@@ -76,7 +76,7 @@ public:
 		return static_cast<Month>(month);
 	}
 
-	[[nodiscard]] constexpr unsigned GetYear() const
+	[[nodiscard]] constexpr uint64_t GetYear() const
 	{
 		auto [day, month, year] = ToDate(m_epochDays);
 		return year;
@@ -84,7 +84,7 @@ public:
 
 	[[nodiscard]] constexpr WeekDay GetWeekDay() const
 	{
-		const unsigned weekday = (m_epochDays + 4) % 7;
+		const uint64_t weekday = (m_epochDays + 4) % 7;
 		return static_cast<WeekDay>(weekday);
 	}
 
@@ -108,15 +108,15 @@ public:
 	{
 		const auto now = std::chrono::system_clock::now();
 		const auto epochDays = std::chrono::duration_cast<std::chrono::days>(now.time_since_epoch());
-		return MyDate(static_cast<unsigned>(epochDays.count()));
+		return MyDate(static_cast<uint64_t>(epochDays.count()));
 	}
 
-	static constexpr void IsValid(const unsigned day, const unsigned month, const unsigned year)
+	static constexpr void IsValid(const uint64_t day, const uint64_t month, const uint64_t year)
 	{
-		constexpr unsigned maxYear = 9999;
-		constexpr unsigned minYear = 1970;
-		constexpr unsigned maxMonth = 12;
-		constexpr unsigned minMonth = 1;
+		constexpr uint64_t maxYear = 9999;
+		constexpr uint64_t minYear = 1970;
+		constexpr uint64_t maxMonth = 12;
+		constexpr uint64_t minMonth = 1;
 
 		if (day == 0 || day > LastDayOfMonth(month, year))
 		{
@@ -195,7 +195,7 @@ public:
 		return *this;
 	}
 
-	//каким образом раелизуется комплятором и почему работает default
+	// каким образом раелизуется комплятором и почему работает default
 	[[nodiscard]] constexpr auto operator<=>(const MyDate& other) const noexcept = default;
 
 	friend std::ostream& operator<<(std::ostream& out, const MyDate& date)
@@ -205,9 +205,9 @@ public:
 
 	friend std::istream& operator>>(std::istream& input, MyDate& date)
 	{
-		unsigned day;
-		unsigned month;
-		unsigned year;
+		uint64_t day;
+		uint64_t month;
+		uint64_t year;
 		char dot1;
 		char dot2;
 
@@ -236,38 +236,38 @@ public:
 	}
 
 private:
-	unsigned m_epochDays = 0;
+	uint64_t m_epochDays = 0;
 
 	// Реализовано благодаря: Howard Hinnant
 	// https://howardhinnant.github.io/date_algorithms.html#civil_from_days
-	static constexpr unsigned FromDate(const unsigned day, const unsigned month, unsigned year) noexcept
+	static constexpr uint64_t FromDate(const uint64_t day, const uint64_t month, uint64_t year) noexcept
 	{
 		year -= month <= 2;
-		const unsigned era = year / 400;
-		const unsigned yoe = year - era * 400;
-		const unsigned doy = (153 * (month > 2 ? month - 3 : month + 9) + 2) / 5 + day - 1;
-		const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+		const uint64_t era = year / 400;
+		const uint64_t yoe = year - era * 400;
+		const uint64_t doy = (153 * (month > 2 ? month - 3 : month + 9) + 2) / 5 + day - 1;
+		const uint64_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
 		return era * 146097 + doe - 719468;
 	}
 
 	// Реализовано благодаря: Howard Hinnant
 	// https://howardhinnant.github.io/date_algorithms.html#civil_from_days
-	static constexpr std::tuple<unsigned, unsigned, unsigned> ToDate(const unsigned epochDays) noexcept
+	static constexpr std::tuple<uint64_t, uint64_t, uint64_t> ToDate(const uint64_t epochDays) noexcept
 	{
-		const unsigned z = epochDays + daysEpoch;
-		const unsigned era = z / 146097;
-		const unsigned doe = z - era * 146097;
-		const unsigned yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
-		const unsigned y = yoe + era * 400;
-		const unsigned doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-		const unsigned mp = (5 * doy + 2) / 153;
-		const unsigned d = doy - (153 * mp + 2) / 5 + 1;
-		const unsigned m = mp < 10 ? mp + 3 : mp - 9;
+		const uint64_t z = epochDays + daysEpoch;
+		const uint64_t era = z / 146097;
+		const uint64_t doe = z - era * 146097;
+		const uint64_t yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+		const uint64_t y = yoe + era * 400;
+		const uint64_t doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+		const uint64_t mp = (5 * doy + 2) / 153;
+		const uint64_t d = doy - (153 * mp + 2) / 5 + 1;
+		const uint64_t m = mp < 10 ? mp + 3 : mp - 9;
 
 		return std::tuple(d, m, y + (m <= 2));
 	}
 
-	static constexpr void IsEpochInRange(const unsigned epochDays)
+	static constexpr void IsEpochInRange(const uint64_t epochDays)
 	{
 		if (epochDays > maxEpochDays)
 		{
@@ -275,12 +275,12 @@ private:
 		}
 	}
 
-	static constexpr bool IsLeap(const unsigned y) noexcept
+	static constexpr bool IsLeap(const uint64_t y) noexcept
 	{
 		return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
 	}
 
-	static constexpr unsigned LastDayOfMonthCommonYear(const unsigned m) noexcept
+	static constexpr uint64_t LastDayOfMonthCommonYear(const uint64_t m) noexcept
 	{
 		constexpr unsigned char a[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 		return a[m - 1];
@@ -288,7 +288,7 @@ private:
 
 	// Реализовано благодаря: Howard Hinnant
 	// https://howardhinnant.github.io/date_algorithms.html#civil_from_days
-	static constexpr unsigned LastDayOfMonth(const unsigned m, const unsigned y) noexcept
+	static constexpr uint64_t LastDayOfMonth(const uint64_t m, const uint64_t y) noexcept
 	{
 		if (m == 2 && IsLeap(y))
 		{
