@@ -5,7 +5,6 @@
 #include <numeric>
 #include <string>
 
-//Range besed tests
 TEST(MyArrayIterators, BeginEndForward)
 {
 	MyArray arr = { 1, 2, 3, 4, 5 };
@@ -89,4 +88,70 @@ TEST(MyArrayIterators, STLCompatibility)
 	std::sort(arr.begin(), arr.end());
 	EXPECT_EQ(arr[0], 1);
 	EXPECT_EQ(arr[3], 4);
+}
+
+TEST(MyArrayRangeBased, ReadValues)
+{
+	MyArray arr = { 1, 2, 3, 4 };
+
+	int sum = 0;
+	for (int value : arr)
+	{
+		sum += value;
+	}
+
+	EXPECT_EQ(sum, 10);
+}
+
+TEST(MyArrayRangeBased, ModifyValues)
+{
+	MyArray arr = { 1, 2, 3 };
+
+	for (int& value : arr)
+	{
+		value *= 2;
+	}
+
+	EXPECT_EQ(arr[0], 2);
+	EXPECT_EQ(arr[1], 4);
+	EXPECT_EQ(arr[2], 6);
+}
+
+TEST(MyArrayRangeBased, ConstArray)
+{
+	const MyArray arr = { 5, 6, 7 };
+
+	int sum = 0;
+	for (const int value : arr)
+	{
+		sum += value;
+	}
+
+	EXPECT_EQ(sum, 18);
+}
+
+TEST(MyArrayRangeBased, StringModify)
+{
+	MyArray<std::string> arr = { "a", "b" };
+
+	for (auto& s : arr)
+	{
+		s += "!";
+	}
+
+	EXPECT_EQ(arr[0], "a!");
+	EXPECT_EQ(arr[1], "b!");
+}
+
+TEST(MyArrayRangeBased, EmptyArray)
+{
+	MyArray<int> arr;
+
+	int count = 0;
+	for ([[maybe_unused]] int v : arr)
+	{
+		++count;
+	}
+
+	EXPECT_EQ(count, 0);
 }
