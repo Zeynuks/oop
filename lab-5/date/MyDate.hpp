@@ -35,11 +35,12 @@ enum class WeekDay
 	Saturday
 };
 
-constexpr unsigned daysEpoch = 719'468;
-constexpr unsigned maxEpochDays = 2'932'896;
-
+//TODO unsigned to uint64_t
 class MyDate
 {
+private:
+	unsigned daysEpoch = 719'468;
+	unsigned maxEpochDays = 2'932'896;
 public:
 	constexpr MyDate(const unsigned day, const Month month, const unsigned year)
 	{
@@ -54,6 +55,7 @@ public:
 		m_epochDays = FromDate(day, month, year);
 	}
 
+	//подумать как измбежать неявного преобразования типов
 	constexpr explicit MyDate(const unsigned epochDays)
 	{
 		IsEpochInRange(epochDays);
@@ -193,6 +195,7 @@ public:
 		return *this;
 	}
 
+	//каким образом раелизуется комплятором и почему работает default
 	[[nodiscard]] constexpr auto operator<=>(const MyDate& other) const noexcept = default;
 
 	friend std::ostream& operator<<(std::ostream& out, const MyDate& date)
