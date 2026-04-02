@@ -146,6 +146,7 @@ public:
 	}
 
 	// оператор конкатенации строки MyString и стандартной строки std::string
+	//Почему нужен friend
 	[[nodiscard]] friend MyString operator+(MyString lhs, const std::string& rhs)
 	{
 		lhs += rhs;
