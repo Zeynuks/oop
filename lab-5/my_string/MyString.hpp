@@ -27,28 +27,27 @@ public:
 	// с завершающим нулевым символом
 	MyString(const char* pString)
 	{
-		if (pString != nullptr)
-		{
-			const size_t length = strlen(pString);
-			m_data.Reserve(length + 1);
-			for (size_t i = 0; i < length; ++i)
-			{
-				m_data.PushBack(pString[i]);
-			}
+		if (pString) {
+			const size_t len = strlen(pString);
+			m_data.Resize(len + 1);
+			std::memcpy(&m_data[0], pString, len);
+			m_data[len] = '\0';
+		} else {
+			m_data.PushBack('\0');
 		}
-		m_data.PushBack('\0');
 	}
 
 	// конструктор, инициализирующий строку данными из
 	// символьного массива заданной длины
 	MyString(const char* pString, const size_t length)
 	{
-		m_data.Reserve(length + 1);
-		for (size_t i = 0; i < length; ++i)
-		{
-			m_data.PushBack(pString[i]);
+		if (length == 0) {
+			m_data.PushBack('\0');
+			return;
 		}
-		m_data.PushBack('\0');
+		m_data.Resize(length + 1);
+		std::memcpy(&m_data[0], pString, length);
+		m_data[length] = '\0';
 	}
 
 	// конструктор копирования
@@ -62,7 +61,6 @@ public:
 	MyString(MyString&& other) noexcept
 		: m_data(std::move(other.m_data))
 	{
-		other.m_data.PushBack('\0');
 	}
 
 	// конструктор, инициализирующий строку данными из
@@ -208,7 +206,8 @@ public:
 	// даже если строка пустая
 	[[nodiscard]] const char* GetStringData() const
 	{
-		return &m_data.Front();
+		if (m_data.Empty()) return "";
+		return &m_data[0];
 	}
 
 	// возвращает подстроку с заданной позиции длиной не больше length символов

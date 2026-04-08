@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstring>
 #include <iterator>
 #include <stdexcept>
 
@@ -23,12 +24,20 @@ public:
 	}
 
 	constexpr MyArray(const MyArray& other)
-		: m_allocator(AllocatorTrails::select_on_container_copy_construction(other.m_allocator))
+	   : m_allocator(AllocatorTrails::select_on_container_copy_construction(other.m_allocator))
 	{
-		Reserve(other.m_size);
-		for (std::size_t i = 0; i < other.m_size; ++i)
-		{
-			PushBack(other.m_data[i]);
+		if (other.m_size > 0) {
+			m_data = AllocatorTrails::allocate(m_allocator, other.m_size);
+			m_capacity = other.m_size;
+
+			if constexpr (std::is_trivially_copyable_v<T>) {
+				std::memcpy(m_data, other.m_data, other.m_size * sizeof(T));
+				m_size = other.m_size;
+			} else {
+				for (std::size_t i = 0; i < other.m_size; ++i) {
+					PushBack(other.m_data[i]);
+				}
+			}
 		}
 	}
 
