@@ -1,0 +1,353 @@
+@startuml
+abstract "IMoneyStorage" as C_0008867711141644756867
+abstract C_0008867711141644756867 {
++~IMoneyStorage() = default : void
+..
+{abstract} -Deposit(Money amount) = 0 : void
+{abstract} +GetBalance() const = 0 : Money
+{abstract} +GetId() const = 0 : StorageId
+{abstract} -Withdraw(Money amount) = 0 : Money
+__
+}
+class "BaseMoneyStorage" as C_0004479819831165396369
+class C_0004479819831165396369 {
++BaseMoneyStorage(Money initialAmount = 0) : void
+..
+-Deposit(Money amount) : void
++GetBalance() const : Money
++GetId() const : StorageId
+-Withdraw(Money amount) : Money
+__
+-m_balance : Money
+-m_id : StorageId
+{static} -m_nextId : StorageId
+}
+class "BankAccount" as C_0004177331917579434702
+class C_0004177331917579434702 {
+__
+}
+class "Bank" as C_0007854244882827578708
+class C_0007854244882827578708 {
++Bank(IMoneyStorage & bankStorage) : void
++Bank(const Bank &) = deleted : void
+..
++operator=(const Bank &) = deleted : Bank &
+..
++CloseAccount(const IMoneyStorage & account) : void
++OpenAccount() : IMoneyStorage &
+__
+-m_accounts : std::unordered_map<AccountId,BankAccount>
+-m_bankStorage : IMoneyStorage &
+}
+abstract "IActor" as C_0010343703923560201511
+abstract C_0010343703923560201511 {
++~IActor() = default : void
+..
+{abstract} +GetId() const = 0 : ActorId
+{abstract} +GetName() const = 0 : std::string
+__
+}
+abstract "IMoneyReceiver" as C_0006902561956033354802
+abstract C_0006902561956033354802 {
++~IMoneyReceiver() = default : void
+..
+{abstract} +ReceiveBankTransfer(IMoneyStorage & from, Money amount) = 0 : void
+{abstract} +ReceiveCash(IMoneyStorage & from, Money amount) = 0 : void
+__
+}
+abstract "ISimulatable" as C_0014482441725672372563
+abstract C_0014482441725672372563 {
++~ISimulatable() = default : void
+..
+{abstract} +Tick(EconomyContext & context) = 0 : void
+__
+}
+class "BaseActor" as C_0001813111222819975009
+class C_0001813111222819975009 {
++BaseActor(ActorId id, const std::string & name) : void
+..
++GetId() const : ActorId
++GetName() const : std::string
+__
+-m_id : ActorId
+-m_name : std::string
+}
+abstract "IBankAccountHolder" as C_0008735514139892635337
+abstract C_0008735514139892635337 {
++~IBankAccountHolder() = default : void
+..
+{abstract} +CloseBankAccount(IMoneyStorage & to) = 0 : void
+{abstract} +GetBankAccount() const = 0 : IMoneyStorage &
+{abstract} +OpenBankAccount() = 0 : void
+__
+}
+class "BaseBankAccountHolder" as C_0007413613908838135378
+class C_0007413613908838135378 {
++BaseBankAccountHolder(Bank & m_bank) : void
+..
++CloseBankAccount(IMoneyStorage & to) : void
++GetBankAccount() const : IMoneyStorage &
++OpenBankAccount() : void
+__
+-m_bank : Bank &
+-m_bankAccount : std::optional<std::reference_wrapper<IMoneyStorage>>
+}
+class "Wallet" as C_0006342630758667138651
+class C_0006342630758667138651 {
+__
+}
+abstract "IWalletHolder" as C_0017970125942237838823
+abstract C_0017970125942237838823 {
++~IWalletHolder() = default : void
+..
+{abstract} +GetWallet() = 0 : IMoneyStorage &
+__
+}
+class "BaseWalletHolder" as C_0003853869394798619007
+class C_0003853869394798619007 {
++BaseWalletHolder(Money initialAmount = 0) : void
+..
++GetWallet() : IMoneyStorage &
+__
+-m_wallet : Wallet
+}
+class "Person" as C_0012509464965605143713
+class C_0012509464965605143713 {
++Person(ActorId id, const std::string & name, Bank & bank) : void
+..
++GetBankAccount() const : IMoneyStorage &
++GetWallet() : IMoneyStorage &
++ReceiveBankTransfer(IMoneyStorage & from, Money amount) : void
++ReceiveCash(IMoneyStorage & from, Money amount) : void
+__
+}
+class "Apu" as C_0013968265876941912125
+class C_0013968265876941912125 {
++Apu(ActorId id, Bank & bank, ActorId bernsId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_bernsId : ActorId
+}
+class "EconomyContext" as C_0000637116249782584318
+class C_0000637116249782584318 {
++AddActor(std::unique_ptr<IActor> actor) : void
++GetActor<T>(const ActorId id) : T &
++GetAllActors() : std::vector<std::reference_wrapper<IActor>>
+__
+-m_actors : std::unordered_map<ActorId,std::unique_ptr<IActor>>
+}
+class "MoneyTransfer" as C_0002600330531225389617
+class C_0002600330531225389617 {
++MoneyTransfer(IMoneyStorage & from, Money amount) : void
++~MoneyTransfer() : void
+..
++To(IMoneyStorage & to) : void
+__
+-m_amount : Money
+-m_committed : bool
+-m_from : IMoneyStorage &
+}
+abstract "IStealable" as C_0004146375882782661969
+abstract C_0004146375882782661969 {
++~IStealable() = default : void
+..
+{abstract} +GetStorageToSteal() = 0 : IMoneyStorage &
+__
+}
+class "Bart" as C_0000333291450640021298
+class C_0000333291450640021298 {
++Bart(ActorId id, Bank & bank, ActorId apuId) : void
+..
++GetStorageToSteal() : IMoneyStorage &
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+}
+class "Berns" as C_0014668244818808648209
+class C_0014668244818808648209 {
++Berns(ActorId id, Bank & bank, ActorId homerId, ActorId weylonId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_homerId : ActorId
+-m_weylonId : ActorId
+}
+class "Chester" as C_0016315380819418444890
+class C_0016315380819418444890 {
++Chester(ActorId id, Bank & bank, ActorId homerId, ActorId apuId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+-m_homerId : ActorId
+}
+class "Liza" as C_0000917504856513896229
+class C_0000917504856513896229 {
++Liza(ActorId id, Bank & bank, ActorId apuId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+}
+class "Homer" as C_0004501147113819702696
+class C_0004501147113819702696 {
++Homer(ActorId id, Bank & bank, ActorId margeId, ActorId bernsId, ActorId bartId, ActorId lisaId, ActorId chesterId) : void
+..
++GetStorageToSteal() : IMoneyStorage &
++Tick(EconomyContext & context) : void
+__
+-m_bartId : ActorId
+-m_bernsId : ActorId
+-m_chesterId : ActorId
+-m_lizaId : ActorId
+-m_margeId : ActorId
+}
+class "Marge" as C_0002314732857198907329
+class C_0002314732857198907329 {
++Marge(ActorId id, Bank & bank, ActorId apuId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+}
+class "Nelson" as C_0009928043469185086936
+class C_0009928043469185086936 {
++Nelson(ActorId id, Bank & bank, ActorId bartId, ActorId apuId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+-m_bartId : ActorId
+}
+class "Weylon" as C_0008846656519870756405
+class C_0008846656519870756405 {
++Weylon(ActorId id, Bank & bank, ActorId apuId) : void
+..
++Tick(EconomyContext & context) : void
+__
+-m_apuId : ActorId
+}
+class "BankAccountError" as C_0000609098482437252309
+class C_0000609098482437252309 {
++runtime_error(const char *) : void
+__
+}
+class "MoneyStorageError" as C_0007976705799635254502
+class C_0007976705799635254502 {
++runtime_error(const char *) : void
+__
+}
+class "EconomyEmulator" as C_0006002240154960934628
+class C_0006002240154960934628 {
+-ActorIteration(const IActor & actor) : void
++Emulate(int iterations) : void
++InitEmulator() : void
+__
+-m_bank : Bank
+-m_bankAccount : BankAccount
+-m_context : EconomyContext
+}
+class "ActorBuilder" as C_0012425759049097186736
+class C_0012425759049097186736 {
++ActorBuilder(Bank & bank, BankAccount & account) : void
+..
++BuildApu() : std::unique_ptr<Apu>
++BuildBart() : std::unique_ptr<Bart>
++BuildBerns() : std::unique_ptr<Berns>
++BuildChester() : std::unique_ptr<Chester>
++BuildHomer() : std::unique_ptr<Homer>
++BuildLiza() : std::unique_ptr<Liza>
++BuildMarge() : std::unique_ptr<Marge>
++BuildNelson() : std::unique_ptr<Nelson>
++BuildWeylon() : std::unique_ptr<Weylon>
+__
+-m_account : BankAccount &
+-m_apuId : ActorId
+-m_bank : Bank &
+-m_bartId : ActorId
+-m_bernsId : ActorId
+-m_chesterId : ActorId
+-m_homerId : ActorId
+-m_lizaId : ActorId
+-m_margeId : ActorId
+-m_nelsonId : ActorId
+-m_weylonId : ActorId
+}
+C_0008867711141644756867 <.. C_0002600330531225389617 : +<<friend>>
+C_0008867711141644756867 <|-- C_0004479819831165396369
+C_0004479819831165396369 <|-- C_0004177331917579434702
+C_0007854244882827578708 --> C_0008867711141644756867 : -m_bankStorage
+C_0007854244882827578708 o-- C_0004177331917579434702 : -m_accounts
+C_0006902561956033354802 ..> C_0008867711141644756867
+C_0014482441725672372563 ..> C_0000637116249782584318
+C_0010343703923560201511 <|-- C_0001813111222819975009
+C_0008735514139892635337 ..> C_0008867711141644756867
+C_0007413613908838135378 --> C_0007854244882827578708 : -m_bank
+C_0007413613908838135378 o-- C_0008867711141644756867 : -m_bankAccount
+C_0008735514139892635337 <|-- C_0007413613908838135378
+C_0004479819831165396369 <|-- C_0006342630758667138651
+C_0017970125942237838823 ..> C_0008867711141644756867
+C_0003853869394798619007 ..> C_0008867711141644756867
+C_0003853869394798619007 o-- C_0006342630758667138651 : -m_wallet
+C_0017970125942237838823 <|-- C_0003853869394798619007
+C_0012509464965605143713 ..> C_0007854244882827578708
+C_0012509464965605143713 ..> C_0008867711141644756867
+C_0014482441725672372563 <|-- C_0012509464965605143713
+C_0006902561956033354802 <|-- C_0012509464965605143713
+C_0001813111222819975009 <|-- C_0012509464965605143713
+C_0007413613908838135378 <|-- C_0012509464965605143713
+C_0003853869394798619007 <|-- C_0012509464965605143713
+C_0013968265876941912125 ..> C_0007854244882827578708
+C_0013968265876941912125 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0013968265876941912125
+C_0000637116249782584318 o-- C_0010343703923560201511 : -m_actors
+C_0002600330531225389617 --> C_0008867711141644756867 : -m_from
+C_0004146375882782661969 ..> C_0008867711141644756867
+C_0000333291450640021298 ..> C_0007854244882827578708
+C_0000333291450640021298 ..> C_0000637116249782584318
+C_0000333291450640021298 ..> C_0008867711141644756867
+C_0012509464965605143713 <|-- C_0000333291450640021298
+C_0004146375882782661969 <|-- C_0000333291450640021298
+C_0014668244818808648209 ..> C_0007854244882827578708
+C_0014668244818808648209 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0014668244818808648209
+C_0016315380819418444890 ..> C_0007854244882827578708
+C_0016315380819418444890 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0016315380819418444890
+C_0000917504856513896229 ..> C_0007854244882827578708
+C_0000917504856513896229 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0000917504856513896229
+C_0004501147113819702696 ..> C_0007854244882827578708
+C_0004501147113819702696 ..> C_0000637116249782584318
+C_0004501147113819702696 ..> C_0008867711141644756867
+C_0012509464965605143713 <|-- C_0004501147113819702696
+C_0004146375882782661969 <|-- C_0004501147113819702696
+C_0002314732857198907329 ..> C_0007854244882827578708
+C_0002314732857198907329 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0002314732857198907329
+C_0009928043469185086936 ..> C_0007854244882827578708
+C_0009928043469185086936 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0009928043469185086936
+C_0008846656519870756405 ..> C_0007854244882827578708
+C_0008846656519870756405 ..> C_0000637116249782584318
+C_0012509464965605143713 <|-- C_0008846656519870756405
+C_0006002240154960934628 ..> C_0010343703923560201511
+C_0006002240154960934628 o-- C_0004177331917579434702 : -m_bankAccount
+C_0006002240154960934628 o-- C_0007854244882827578708 : -m_bank
+C_0006002240154960934628 o-- C_0000637116249782584318 : -m_context
+C_0012425759049097186736 ..> C_0013968265876941912125
+C_0012425759049097186736 ..> C_0000333291450640021298
+C_0012425759049097186736 ..> C_0014668244818808648209
+C_0012425759049097186736 ..> C_0016315380819418444890
+C_0012425759049097186736 ..> C_0004501147113819702696
+C_0012425759049097186736 ..> C_0000917504856513896229
+C_0012425759049097186736 ..> C_0002314732857198907329
+C_0012425759049097186736 ..> C_0009928043469185086936
+C_0012425759049097186736 ..> C_0008846656519870756405
+C_0012425759049097186736 --> C_0007854244882827578708 : -m_bank
+C_0012425759049097186736 --> C_0004177331917579434702 : -m_account
+
+'Generated with clang-uml, version 0.6.2-27-g4e76f03
+'LLVM version clang version 19.1.7 (Fedora 19.1.7-5.fc41)
+@enduml

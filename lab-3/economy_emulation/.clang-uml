@@ -1,0 +1,20 @@
+compilation_database_dir: ./build
+output_directory: ./diagrams
+
+diagrams:
+  class_calc:
+    type: class
+    glob:
+      - "./actors/*.cpp"
+      - "./actors/*.hpp"
+      - "./core/*.hpp"
+      - "./core/*.cpp"
+      - "./core/errors/*.hpp"
+      - "./core/errors/*.hpp"
+      - "./core/money_storage/*.hpp"
+      - "./core/money_storage/*.cpp"
+      - "./*.cpp"
+      - "./*.hpp"
+    exclude:
+      namespaces:
+        - std

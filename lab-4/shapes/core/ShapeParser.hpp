@@ -1,6 +1,9 @@
 #pragma once
 
-#include "ShapeController.hpp"
+#include "Circle.hpp"
+#include "LineSegment.hpp"
+#include "Rectangle.hpp"
+#include "Triangle.hpp"
 
 #include <iostream>
 #include <memory>
