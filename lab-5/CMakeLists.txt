@@ -1,2 +1,2 @@
-#add_subdirectory(date)
+add_subdirectory(date)
 add_subdirectory(my_string)
