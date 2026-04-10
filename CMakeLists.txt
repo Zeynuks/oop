@@ -6,9 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(extern/googletest)
 
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 add_subdirectory(extern/benchmark)
 
 add_subdirectory(lab-1)
 add_subdirectory(lab-2)
+add_subdirectory(lab-3)
+add_subdirectory(lab-4)
 add_subdirectory(lab-5)

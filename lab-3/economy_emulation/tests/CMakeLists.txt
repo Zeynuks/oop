@@ -1,0 +1,5 @@
+add_executable(economy_emulation_tests ContextTests.cpp BaseBankAccountHolderTests.cpp BaseMoneyStorageTests.cpp)
+
+target_link_libraries(economy_emulation_tests gtest_main economy_core_lib emulation_lib)
+
+add_test(NAME EconomyEmulationTests COMMAND economy_emulation_tests)

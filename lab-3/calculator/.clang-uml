@@ -1,0 +1,19 @@
+compilation_database_dir: ./build
+output_directory: ./diagrams
+
+diagrams:
+  class_calc:
+    type: class
+    puml:
+      before:
+        - "skinparam linetype ortho"
+    glob:
+      - "./core/*.cpp"
+      - "./core/*.hpp"
+      - "./commands/*.cpp"
+      - "./commands/*.hpp"
+      - "./*.cpp"
+      - "./*.hpp"
+    exclude:
+      namespaces:
+        - std
