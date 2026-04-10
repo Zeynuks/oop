@@ -3,4 +3,4 @@
 ## Выбранные задания
 
 - [Задание 1: date - 220 баллов](date/main.cpp)
-- [Задание 2: my_string - 300 баллов]()
+- [Задание 2: my_string - 300 баллов](my_string/MyString.hpp)
