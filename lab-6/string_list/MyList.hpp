@@ -69,8 +69,8 @@ public:
 
 		// неявное преобразование iterator -> const_iterator
 		template <bool OtherConst>
-		ListIterator(const ListIterator<OtherConst>& other,
-			std::enable_if_t<IsConst && !OtherConst, int> = 0)
+			requires(IsConst && !OtherConst)
+		ListIterator(const ListIterator<OtherConst>& other)
 			: m_node(other.m_node)
 		{
 		}
