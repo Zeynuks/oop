@@ -9,17 +9,27 @@
 template <typename T, typename Allocator = std::allocator<T>>
 class MyList
 {
+	// базовый узел (без данных)
 	struct NodeBase
 	{
 		NodeBase* prev = nullptr;
 		NodeBase* next = nullptr;
 	};
 
+	// узел списка, содержащий данные
 	struct Node : NodeBase
 	{
 		T data;
+
+		// конструктор узла с perfect forwarding
+		template <typename... Args>
+		Node(Args&&... args)
+			: data(std::forward<Args>(args)...)
+		{
+		}
 	};
 
+	// аллокаторы для узлов и базовых узлов
 	using NodeAllocator = std::allocator_traits<Allocator>::template rebind_alloc<Node>;
 	using BaseAllocator = std::allocator_traits<Allocator>::template rebind_alloc<NodeBase>;
 	using NodeAllocatorTraits = std::allocator_traits<NodeAllocator>;
@@ -33,14 +43,16 @@ public:
 	using reference = T&;
 	using const_reference = const T&;
 
+	// двунаправленный итератор списка
 	template <bool IsConst>
 	class ListIterator
 	{
 		friend class MyList;
+
 		using NodeBasePtr = std::conditional_t<IsConst, const NodeBase*, NodeBase*>;
 		using NodePtr = std::conditional_t<IsConst, const Node*, Node*>;
 
-		NodeBasePtr m_node;
+		NodeBasePtr m_node = nullptr;
 
 	public:
 		using iterator_category = std::bidirectional_iterator_tag;
@@ -49,11 +61,13 @@ public:
 		using pointer = std::conditional_t<IsConst, const T*, T*>;
 		using reference = std::conditional_t<IsConst, const T&, T&>;
 
+		// конструктор итератора
 		explicit ListIterator(NodeBasePtr node)
 			: m_node(node)
 		{
 		}
 
+		// неявное преобразование iterator -> const_iterator
 		template <bool OtherConst>
 		ListIterator(const ListIterator<OtherConst>& other,
 			std::enable_if_t<IsConst && !OtherConst, int> = 0)
@@ -61,22 +75,27 @@ public:
 		{
 		}
 
+		// разыменование итератора
 		reference operator*() const
 		{
+			assert(m_node && "Dereferencing null iterator");
 			return static_cast<NodePtr>(m_node)->data;
 		}
 
+		// доступ к членам объекта
 		pointer operator->() const
 		{
 			return std::addressof(static_cast<NodePtr>(m_node)->data);
 		}
 
+		// переход к следующему элементу (префикс)
 		ListIterator& operator++()
 		{
 			m_node = m_node->next;
 			return *this;
 		}
 
+		// переход к следующему элементу (постфикс)
 		ListIterator operator++(int)
 		{
 			auto tmp = *this;
@@ -84,12 +103,14 @@ public:
 			return tmp;
 		}
 
+		// переход к предыдущему элементу (префикс)
 		ListIterator& operator--()
 		{
 			m_node = m_node->prev;
 			return *this;
 		}
 
+		// переход к предыдущему элементу (постфикс)
 		ListIterator operator--(int)
 		{
 			auto tmp = *this;
@@ -97,6 +118,7 @@ public:
 			return tmp;
 		}
 
+		// сравнение итераторов
 		bool operator==(const ListIterator& other) const
 		{
 			return m_node == other.m_node;
@@ -113,28 +135,38 @@ public:
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+	// конструктор по умолчанию с аллокатором
 	explicit MyList(const Allocator& alloc = Allocator())
 		: m_alloc(alloc)
+		, m_base_alloc(alloc)
 	{
 		InitSentinel();
 	}
 
+	// деструктор - очищает список и освобождает sentinel
 	~MyList()
 	{
-		Clear();
-		FreeSentinel();
+		if (m_sentinel)
+		{
+			Clear();
+			BaseAllocatorTraits::deallocate(m_base_alloc, m_sentinel, 1);
+		}
 	}
 
+	// конструктор копирования
 	MyList(const MyList& other)
 		: m_alloc(NodeAllocatorTraits::select_on_container_copy_construction(other.m_alloc))
+		, m_base_alloc(m_alloc)
 	{
 		InitSentinel();
+
 		for (const auto& item : other)
 		{
 			PushBack(item);
 		}
 	}
 
+	// оператор копирующего присваивания (copy-and-swap)
 	MyList& operator=(const MyList& other)
 	{
 		if (this != &other)
@@ -146,8 +178,10 @@ public:
 		return *this;
 	}
 
+	// перемещающий конструктор
 	MyList(MyList&& other) noexcept
 		: m_alloc(std::move(other.m_alloc))
+		, m_base_alloc(std::move(other.m_base_alloc))
 		, m_sentinel(other.m_sentinel)
 		, m_size(other.m_size)
 	{
@@ -155,14 +189,19 @@ public:
 		other.m_size = 0;
 	}
 
+	// перемещающий оператор присваивания
 	MyList& operator=(MyList&& other) noexcept
 	{
 		if (this != &other)
 		{
 			Clear();
-			FreeSentinel();
+			BaseAllocatorTraits::deallocate(m_base_alloc, m_sentinel, 1);
 
-			m_alloc = std::move(other.m_alloc);
+			if constexpr (NodeAllocatorTraits::propagate_on_container_move_assignment::value)
+			{
+				m_alloc = std::move(other.m_alloc);
+			}
+
 			m_sentinel = other.m_sentinel;
 			m_size = other.m_size;
 
@@ -173,60 +212,119 @@ public:
 		return *this;
 	}
 
+	// доступ к первому элементу
 	reference Front()
 	{
-		assert(m_size > 0);
+		assert(!Empty() && "MyList::Front() called on empty list");
 		return *begin();
 	}
 
 	const_reference Front() const
 	{
-		assert(m_size > 0);
+		assert(!Empty() && "MyList::Front() called on empty list");
 		return *begin();
 	}
 
+	// доступ к последнему элементу
 	reference Back()
 	{
-		assert(m_size > 0);
+		assert(!Empty() && "MyList::Back() called on empty list");
 		return *--end();
 	}
 
 	const_reference Back() const
 	{
-		assert(m_size > 0);
+		assert(!Empty() && "MyList::Back() called on empty list");
 		return *--end();
 	}
 
+	// количество элементов
 	size_type Size() const noexcept
 	{
 		return m_size;
 	}
 
+	// проверка на пустоту
 	bool Empty() const noexcept
 	{
 		return m_size == 0;
 	}
 
+	// итератор на первый элемент
 	iterator begin() noexcept
 	{
+		assert(m_sentinel && "List not initialized");
 		return iterator(m_sentinel->next);
 	}
 
+	// итератор на конец (sentinel)
 	iterator end() noexcept
 	{
+		assert(m_sentinel && "List not initialized");
 		return iterator(m_sentinel);
 	}
 
 	const_iterator begin() const noexcept
 	{
+		assert(m_sentinel && "List not initialized");
 		return const_iterator(m_sentinel->next);
 	}
 
 	const_iterator end() const noexcept
 	{
+		assert(m_sentinel && "List not initialized");
 		return const_iterator(m_sentinel);
 	}
 
+	const_iterator сbegin() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return const_iterator(m_sentinel->next);
+	}
+
+	const_iterator сend() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return const_iterator(m_sentinel);
+	}
+
+	reverse_iterator rbegin() noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ReverseIterator(end());
+	}
+
+	reverse_iterator rend() noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ReverseIterator(begin());
+	}
+
+	const_reverse_iterator rbegin() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ConstReverseIterator(end());
+	}
+
+	const_reverse_iterator rend() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ConstReverseIterator(begin());
+	}
+
+	const_reverse_iterator crbegin() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ConstReverseIterator(end());
+	}
+
+	const_reverse_iterator сrend() const noexcept
+	{
+		assert(m_sentinel && "List not initialized");
+		return ConstReverseIterator(begin());
+	}
+
+	// вставка элемента перед pos
 	template <typename... Args>
 	iterator Emplace(const_iterator pos, Args&&... args)
 	{
@@ -238,24 +336,28 @@ public:
 		curr->prev->next = newNode;
 		curr->prev = newNode;
 
-		m_size++;
+		++m_size;
 
 		return iterator(newNode);
 	}
 
+	// добавление элемента в конец
 	void PushBack(const T& value)
 	{
 		Emplace(end(), value);
 	}
 
+	// добавление элемента в начало
 	void PushFront(const T& value)
 	{
 		Emplace(begin(), value);
 	}
 
+	// удаление элемента по позиции
 	iterator Erase(const_iterator pos)
 	{
-		assert(pos.m_node != m_sentinel && "Cannot erase end()");
+		assert(pos.m_node != m_sentinel && "MyList::Erase(): cannot erase end()");
+
 		NodeBase* node = const_cast<NodeBase*>(pos.m_node);
 		NodeBase* nextNode = node->next;
 
@@ -263,56 +365,79 @@ public:
 		node->next->prev = node->prev;
 
 		DestroyNode(static_cast<Node*>(node));
-		m_size--;
+		--m_size;
 
 		return iterator(nextNode);
 	}
 
+	// удаляет все элементы списка
 	void Clear() noexcept
 	{
-		while (m_size > 0)
+		assert(m_sentinel && "List not initialized");
+
+		NodeBase* current = m_sentinel->next;
+
+		while (current != m_sentinel)
 		{
-			Erase(begin());
+			NodeBase* next = current->next;
+			DestroyNode(static_cast<Node*>(current));
+			current = next;
 		}
+
+		m_sentinel->next = m_sentinel;
+		m_sentinel->prev = m_sentinel;
+		m_size = 0;
 	}
 
-	void Swap(MyList& other) noexcept
+	// обмен содержимым двух списков
+	void Swap(MyList& other) noexcept(NodeAllocatorTraits::propagate_on_container_swap::value || std::allocator_traits<Allocator>::is_always_equal::value)
 	{
+		if constexpr (NodeAllocatorTraits::propagate_on_container_swap::value)
+		{
+			std::swap(m_alloc, other.m_alloc);
+		}
+		else
+		{
+			assert(m_alloc == other.m_alloc && "Swapping lists with unequal allocators");
+		}
+
 		std::swap(m_sentinel, other.m_sentinel);
 		std::swap(m_size, other.m_size);
-		std::swap(m_alloc, other.m_alloc);
+	}
+
+	// присваивает элементы из диапазона
+	template <typename InputIt>
+	void Assign(InputIt first, InputIt last)
+	{
+		Clear();
+		for (; first != last; ++first)
+		{
+			PushBack(*first);
+		}
 	}
 
 private:
 	[[no_unique_address]] NodeAllocator m_alloc;
+	[[no_unique_address]] BaseAllocator m_base_alloc;
 	NodeBase* m_sentinel = nullptr;
 	size_type m_size = 0;
 
+	// инициализация sentinel-узла (циклический список)
 	void InitSentinel()
 	{
-		BaseAllocator ba(m_alloc);
-		m_sentinel = BaseAllocatorTraits::allocate(ba, 1);
+		m_sentinel = BaseAllocatorTraits::allocate(m_base_alloc, 1);
 		m_sentinel->next = m_sentinel;
 		m_sentinel->prev = m_sentinel;
 	}
 
-	void FreeSentinel()
-	{
-		if (m_sentinel)
-		{
-			BaseAllocator ba(m_alloc);
-			BaseAllocatorTraits::deallocate(ba, m_sentinel, 1);
-			m_sentinel = nullptr;
-		}
-	}
-
+	// создание узла
 	template <typename... Args>
 	Node* CreateNode(Args&&... args)
 	{
 		Node* newNode = NodeAllocatorTraits::allocate(m_alloc, 1);
 		try
 		{
-			NodeAllocatorTraits::construct(m_alloc, std::addressof(newNode->data), std::forward<Args>(args)...);
+			NodeAllocatorTraits::construct(m_alloc, newNode, std::forward<Args>(args)...);
 		}
 		catch (...)
 		{
@@ -323,9 +448,10 @@ private:
 		return newNode;
 	}
 
+	// уничтожение узла
 	void DestroyNode(Node* node) noexcept
 	{
-		NodeAllocatorTraits::destroy(m_alloc, std::addressof(node->data));
+		NodeAllocatorTraits::destroy(m_alloc, node);
 		NodeAllocatorTraits::deallocate(m_alloc, node, 1);
 	}
 };
