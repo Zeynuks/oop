@@ -222,6 +222,7 @@ public:
 		return *begin();
 	}
 
+	// константный доступ к первому элементу
 	const_reference Front() const
 	{
 		assert(!Empty() && "MyList::Front() called on empty list");
@@ -235,6 +236,7 @@ public:
 		return *--end();
 	}
 
+	// константный доступ к последнему элементу
 	const_reference Back() const
 	{
 		assert(!Empty() && "MyList::Back() called on empty list");
