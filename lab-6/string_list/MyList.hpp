@@ -85,6 +85,7 @@ public:
 		// доступ к членам объекта
 		pointer operator->() const
 		{
+			assert(m_node != nullptr && "Accessing member of null iterator");
 			return std::addressof(static_cast<NodePtr>(m_node)->data);
 		}
 
@@ -119,14 +120,16 @@ public:
 		}
 
 		// сравнение итераторов
-		bool operator==(const ListIterator& other) const
+		template <bool OtherConst>
+		bool operator==(const ListIterator<OtherConst>& other) const
 		{
 			return m_node == other.m_node;
 		}
 
-		bool operator!=(const ListIterator& other) const
+		template <bool OtherConst>
+		bool operator!=(const ListIterator<OtherConst>& other) const
 		{
-			return m_node != other.m_node;
+			return !(*this == other);
 		}
 	};
 
@@ -138,7 +141,7 @@ public:
 	// конструктор по умолчанию с аллокатором
 	explicit MyList(const Allocator& alloc = Allocator())
 		: m_alloc(alloc)
-		, m_base_alloc(alloc)
+		, m_base_alloc(m_alloc)
 	{
 		InitSentinel();
 	}
@@ -250,6 +253,20 @@ public:
 		return m_size == 0;
 	}
 
+	// оператор трехстороннего сравнения
+	[[nodiscard]] std::strong_ordering operator<=>(const MyList& other) const
+	{
+		return std::lexicographical_compare_three_way(
+			begin(), end(),
+			other.begin(), other.end());
+	}
+
+	// оператор проверки на равенство
+	[[nodiscard]] bool operator==(const MyList& other) const
+	{
+		return std::equal(begin(), end(), other.begin(), other.end());
+	}
+
 	// итератор на первый элемент
 	iterator begin() noexcept
 	{
@@ -276,13 +293,13 @@ public:
 		return const_iterator(m_sentinel);
 	}
 
-	const_iterator сbegin() const noexcept
+	const_iterator cbegin() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
 		return const_iterator(m_sentinel->next);
 	}
 
-	const_iterator сend() const noexcept
+	const_iterator cend() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
 		return const_iterator(m_sentinel);
@@ -291,37 +308,37 @@ public:
 	reverse_iterator rbegin() noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ReverseIterator(end());
+		return reverse_iterator(end());
 	}
 
 	reverse_iterator rend() noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ReverseIterator(begin());
+		return reverse_iterator(begin());
 	}
 
 	const_reverse_iterator rbegin() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ConstReverseIterator(end());
+		return const_reverse_iterator(end());
 	}
 
 	const_reverse_iterator rend() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ConstReverseIterator(begin());
+		return const_reverse_iterator(begin());
 	}
 
 	const_reverse_iterator crbegin() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ConstReverseIterator(end());
+		return const_reverse_iterator(end());
 	}
 
-	const_reverse_iterator сrend() const noexcept
+	const_reverse_iterator crend() const noexcept
 	{
 		assert(m_sentinel && "List not initialized");
-		return ConstReverseIterator(begin());
+		return const_reverse_iterator(begin());
 	}
 
 	// вставка элемента перед pos
@@ -351,6 +368,16 @@ public:
 	void PushFront(const T& value)
 	{
 		Emplace(begin(), value);
+	}
+
+	void PushBack(T&& value)
+	{
+		Emplace(end(), std::move(value));
+	}
+
+	void PushFront(T&& value)
+	{
+		Emplace(begin(), std::move(value));
 	}
 
 	// удаление элемента по позиции
