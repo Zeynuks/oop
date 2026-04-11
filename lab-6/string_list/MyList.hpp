@@ -9,7 +9,7 @@
 template <typename T, typename Allocator = std::allocator<T>>
 class MyList
 {
-	// базовый узел (без данных)
+	// базовый узел
 	struct NodeBase
 	{
 		NodeBase* prev = nullptr;
