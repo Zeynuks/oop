@@ -10,6 +10,11 @@ set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 add_subdirectory(extern/benchmark)
 
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+endif ()
+
 add_subdirectory(lab-1)
 add_subdirectory(lab-2)
 add_subdirectory(lab-3)
