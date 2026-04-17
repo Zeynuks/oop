@@ -119,14 +119,14 @@ public:
 	// оператор доступа к элементу по индексу для чтения и записи
 	constexpr T& operator[](std::size_t index)
 	{
-		assert(index <= GetLength() && "Index out of bounds");
+		assert(index <= Size() && "Index out of bounds");
 		return m_data[index];
 	}
 
 	// оператор доступа к элементу по индексу для чтения (константный)
 	constexpr const T& operator[](std::size_t index) const
 	{
-		assert(index <= GetLength() && "Index out of bounds");
+		assert(index <= Size() && "Index out of bounds");
 		return m_data[index];
 	}
 
