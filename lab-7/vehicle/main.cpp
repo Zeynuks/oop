@@ -1,4 +1,3 @@
-
 #include "core/IVehicle.hpp"
 #include "core/Person.hpp"
 #include "core/Vehicle.hpp"

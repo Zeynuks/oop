@@ -34,8 +34,12 @@ public:
 		std::string const& domain,
 		std::string const& document,
 		const Protocol protocol = Protocol::HTTP)
-		: m_protocol(protocol)
 	{
+		if (protocol == Protocol::FTP)
+		{
+			throw UrlParsingError("Failed to parse protocol");
+		}
+
 		if (!UrlParserFunctions::TryParseDomain(domain, m_domain))
 		{
 			throw UrlParsingError("Failed to set domain");
@@ -50,6 +54,8 @@ public:
 		{
 			throw UrlParsingError("Failed to set default port");
 		}
+
+		m_protocol = protocol;
 	}
 
 	HttpUrl(
@@ -57,8 +63,12 @@ public:
 		std::string const& document,
 		const Protocol protocol,
 		const Port port)
-		: m_protocol(protocol)
 	{
+		if (protocol == Protocol::FTP)
+		{
+			throw UrlParsingError("Failed to parse protocol");
+		}
+
 		if (!UrlParserFunctions::TryParseDomain(domain, m_domain))
 		{
 			throw UrlParsingError("Failed to set domain");
@@ -75,6 +85,7 @@ public:
 		}
 
 		m_port = port;
+		m_protocol = protocol;
 	}
 
 	std::string GetURL() const
