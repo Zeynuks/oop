@@ -58,8 +58,8 @@ public:
 		using iterator_category = std::bidirectional_iterator_tag;
 		using value_type = T;
 		using difference_type = std::ptrdiff_t;
-		using pointer = std::conditional_t<IsConst, const T*, T*>;
-		using reference = std::conditional_t<IsConst, const T&, T&>;
+		using reference = std::add_lvalue_reference_t<std::conditional_t<IsConst, const T, T>>;
+		using pointer = std::add_pointer_t<std::conditional_t<IsConst, const T, T>>;
 
 		// конструктор итератора
 		explicit ListIterator(NodeBasePtr node)
